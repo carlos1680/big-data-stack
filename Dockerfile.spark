@@ -1,0 +1,65 @@
+# ==========================
+# Dockerfile para Apache Spark con driver JDBC MariaDB
+# ==========================
+FROM apache/spark:3.5.0
+
+# ==========================
+# ARGUMENTOS DE BUILD
+# ==========================
+ARG MARIADB_JDBC_URL
+ARG MARIADB_JDBC_VERSION
+
+# ==========================
+# VARIABLES DE ENTORNO
+# ==========================
+ENV MARIADB_JDBC_URL=${MARIADB_JDBC_URL}
+ENV MARIADB_JDBC_VERSION=${MARIADB_JDBC_VERSION}
+
+# ==========================
+# DEPENDENCIAS Y UTILIDADES
+# ==========================
+USER root
+
+# Instalamos wget y curl para healthcheck y descargas JDBC
+RUN apt-get update && \
+    apt-get install -y wget curl bash && \
+    rm -rf /var/lib/apt/lists/*
+
+# Aseguramos que el usuario spark (UID 185) pueda usar /tmp (para wget/curl)
+RUN chmod 777 /tmp
+
+# ==========================
+# CONFIGURACIÓN DE SPARK
+# ==========================
+RUN mkdir -p /opt/spark/conf /opt/spark/app /tmp/spark-events && \
+    chmod -R 777 /tmp/spark-events && \
+    echo "spark.eventLog.enabled=true" >> /opt/spark/conf/spark-defaults.conf && \
+    echo "spark.eventLog.dir=/tmp/spark-events" >> /opt/spark/conf/spark-defaults.conf && \
+    echo "spark.history.fs.logDirectory=/tmp/spark-events" >> /opt/spark/conf/spark-defaults.conf && \
+    echo "spark.history.ui.port=18080" >> /opt/spark/conf/spark-defaults.conf
+
+# ==========================
+# DRIVER JDBC MARIADB
+# ==========================
+RUN echo "📥 Descargando JDBC desde: ${MARIADB_JDBC_URL}" && \
+    curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL}"
+
+# ==========================
+# USUARIO FINAL Y PATH
+# ==========================
+USER 185
+ENV PATH="/opt/spark/bin:/opt/spark/sbin:${PATH}"
+
+# ==========================
+# ENTRYPOINT PRINCIPAL
+# ==========================
+ENTRYPOINT ["bash", "-lc", "\
+  set -euo pipefail; \
+  mkdir -p /opt/spark/logs /tmp/spark-events; \
+  case \"${SPARK_MODE:-master}\" in \
+    master)  export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-master.sh ;; \
+    worker)  export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-worker.sh ${SPARK_MASTER:?SPARK_MASTER no seteado} ;; \
+    history) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-history-server.sh ;; \
+    *) echo \"❌ SPARK_MODE desconocido: ${SPARK_MODE:-}\"; exit 1 ;; \
+  esac \
+"]

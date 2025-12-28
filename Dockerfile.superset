@@ -1,0 +1,38 @@
+# ==========================
+# Dockerfile para Apache Superset con MariaDB
+# ==========================
+
+FROM apache/superset:3.0.2
+
+USER root
+
+# Instalar netcat, cliente MariaDB y drivers de conexión
+#RUN apt-get update && \
+#    apt-get install -y --no-install-recommends netcat-openbsd mariadb-client && \
+#    pip install --no-cache-dir mysqlclient PyMySQL mysql-connector-python && \
+#    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends netcat-openbsd mariadb-client && \
+    pip install --no-cache-dir pymysql && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copiar script de espera personalizado
+COPY wait-for-db.sh /wait-for-db.sh
+RUN chmod +x /wait-for-db.sh
+
+# Crear base de trabajo
+RUN mkdir -p /app/superset_home
+
+USER superset
+
+ENTRYPOINT ["/bin/bash", "-c", "\
+  echo '🔧 Verificando permisos en /app/superset_home ...'; \
+  if [ ! -w /app/superset_home ]; then \
+    echo '⚙️  Reparando permisos (requiere root temporal)...'; \
+    sudo chown -R superset:superset /app/superset_home || true; \
+  fi; \
+  mkdir -p /app/superset_home/logs && chmod -R 777 /app/superset_home/logs; \
+  echo '✅ Carpeta de logs lista'; \
+  /wait-for-db.sh \
+"]

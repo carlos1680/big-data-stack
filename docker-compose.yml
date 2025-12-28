@@ -1,0 +1,476 @@
+#version: "3.9"
+
+# ==========================================================
+# 🧠 ENTORNO BIG DATA UNIFICADO (Carlos Piriz)
+# Compatible con controller.sh y .env
+# ==========================================================
+
+services:
+  # ======================================================
+  # 🐬 MARIADB – Base de datos principal
+  # ======================================================
+  mariadb:
+    image: mariadb:${MARIADB_VERSION}
+    container_name: mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_USER: ${MARIADB_USER}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb -u${MARIADB_USER} -p${MARIADB_PASSWORD} -e 'SELECT 1;'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    ports:
+      - "${MARIADB_PORT}:3306"
+    volumes:
+      - ./volumenes/mariadb:/var/lib/mysql
+      - ./init-sql:/docker-entrypoint-initdb.d
+    networks:
+      bigdata_net:
+        ipv4_address: ${MARIADB_IP}
+
+  # ======================================================
+  # 🧭 ADMINER – Interfaz web SQL
+  # ======================================================
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    ports:
+      - "8089:8080"
+    networks:
+      bigdata_net:
+        ipv4_address: ${ADMINER_IP}
+
+  # ======================================================
+  # 🪣 MINIO – Almacenamiento tipo S3
+  # ======================================================
+  minio:
+    image: minio/minio:${MINIO_VERSION}
+    container_name: minio
+    restart: unless-stopped
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    volumes:
+      - ./volumenes/minio/data:/data
+    networks:
+      bigdata_net:
+        ipv4_address: ${MINIO_IP}
+
+  # ======================================================
+  # ⚙️ SPARK – Cluster completo (Master + 2 Workers + History)
+  # ======================================================
+  spark-master:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+      args:
+        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
+        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+    container_name: spark-master
+    hostname: spark-master
+    restart: unless-stopped
+    environment:
+      SPARK_MODE: master
+      SPARK_MASTER_HOST: spark-master
+      SPARK_LOCAL_IP: ${SPARK_MASTER_IP}
+      SPARK_NO_DAEMONIZE: "true"
+      SPARK_PUBLIC_DNS : localhost
+    ports:
+      - "${SPARK_MASTER_WEBUI_PORT}:8080"
+      - "${SPARK_MASTER_PORT}:7077"
+    volumes:
+      - shared_scripts_airflow:/opt/spark/app
+      - shared_spark_events:/tmp/spark-events
+      - ./volumenes/spark:/opt/spark/work-dir
+      - shared_data:/opt/shared              # 👈 carpeta compartida visible en Spark
+    networks:
+      bigdata_net:
+        ipv4_address: ${SPARK_MASTER_IP}
+    healthcheck:
+      test: >
+        bash -lc '
+          curl -sfI "http://$(hostname -i | awk '"'"'{print $1}'"'"'):8080" | head -n1 | grep -q "200 OK"
+        '
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  spark-worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+      args:
+        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
+        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+    container_name: spark-worker-1
+    hostname: spark-worker-1
+    restart: unless-stopped
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER: spark://spark-master:7077
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_LOCAL_IP: ${SPARK_WORKER1_IP}
+      SPARK_NO_DAEMONIZE: "true"
+    depends_on:
+      - spark-master
+    volumes:
+      - shared_scripts_airflow:/opt/spark/app
+      - shared_spark_events:/tmp/spark-events
+      - ./volumenes/spark:/opt/spark/work-dir
+      - shared_data:/opt/shared              # 👈 carpeta compartida visible en Spark
+    networks:
+      bigdata_net:
+        ipv4_address: ${SPARK_WORKER1_IP}
+
+  spark-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+      args:
+        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
+        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+    container_name: spark-worker-2
+    hostname: spark-worker-2
+    restart: unless-stopped
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER: spark://spark-master:7077
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_LOCAL_IP: ${SPARK_WORKER2_IP}
+      SPARK_NO_DAEMONIZE: "true"
+    depends_on:
+      - spark-master
+    volumes:
+      - shared_scripts_airflow:/opt/spark/app
+      - shared_spark_events:/tmp/spark-events
+      - ./volumenes/spark:/opt/spark/work-dir
+      - shared_data:/opt/shared              # 👈 carpeta compartida visible en Spark
+    networks:
+      bigdata_net:
+        ipv4_address: ${SPARK_WORKER2_IP}
+
+  spark-history:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+      args:
+        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
+        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+    container_name: spark-history
+    hostname: spark-history
+    restart: unless-stopped
+    environment:
+      SPARK_MODE: history
+      SPARK_LOCAL_IP: ${SPARK_HISTORY_IP}
+      SPARK_NO_DAEMONIZE: "true"
+    ports:
+      - "${SPARK_HISTORY_PORT}:18080"
+    volumes:
+      - shared_spark_events:/tmp/spark-events
+      - shared_data:/opt/shared              # 👈 mismo shared por si querés exportar cosas
+    networks:
+      bigdata_net:
+        ipv4_address: ${SPARK_HISTORY_IP}
+
+  # ======================================================
+  # 🧮 JUPYTERLAB – Interfaz Data Science
+  # ======================================================
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyterlab
+    container_name: jupyterlab
+    restart: unless-stopped
+    environment:
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN}
+      SPARK_MASTER: spark://spark-master:7077
+      PYSPARK_PYTHON: python3
+    ports:
+      - "${JUPYTER_PORT}:8888"
+    volumes:
+      - ./volumenes/jupyterlab:/home/jovyan/work
+      - shared_data:/home/jovyan/work/shared   # 👈 vuelve la carpeta compartida
+      - shared_scripts_airflow:/home/jovyan/work/scripts_airflow:ro
+      - shared_dags_airflow:/home/jovyan/work/dags_airflow:ro
+    networks:
+      bigdata_net:
+        ipv4_address: ${JUPYTER_IP}
+
+  # ======================================================
+  # 📊 SUPERSET – Dashboard de visualización
+  # ======================================================
+  superset:
+    build:
+      context: .
+      dockerfile: Dockerfile.superset   # 👈 mover aquí dentro de build
+    container_name: superset
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      SUPERSET_ADMIN_USER: ${SUPERSET_ADMIN_USER}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD}
+      SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL}
+      SUPERSET_DATABASE_URI: ${SUPERSET_DATABASE_URI}
+    ports:
+      - "${SUPERSET_PORT}:8088"
+    volumes:
+      - ./volumenes/superset:/app/superset_home
+    networks:
+      bigdata_net:
+        ipv4_address: ${SUPERSET_IP}
+
+
+  # ======================================================
+  # 🧠 REDIS – Backend de mensajes para Airflow
+  # ======================================================
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - ./volumenes/redis-data:/data
+    networks:
+      bigdata_net:
+        ipv4_address: ${REDIS_IP}
+
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-webserver
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+      - redis
+      - spark-master
+    command: ["webserver"]   # usa tu entrypoint
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY}
+      - AIRFLOW__CELERY__BROKER_URL=${AIRFLOW__CELERY__BROKER_URL}
+      - AIRFLOW__CELERY__RESULT_BACKEND=${AIRFLOW__CELERY__RESULT_BACKEND}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DB_CONN}
+      - AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8090
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW__WEBSERVER__SECRET_KEY}
+      - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:${AIRFLOW_PORT}
+      - AIRFLOW__WEBSERVER__COOKIE_SAMESITE=Lax
+      - AIRFLOW__WEBSERVER__COOKIE_SECURE=False
+      # Datos admin usados por tu entrypoint
+      - AIRFLOW_ADMIN_USER=${AIRFLOW_ADMIN_USER}
+      - AIRFLOW_ADMIN_PASS=${AIRFLOW_ADMIN_PASS}
+      - AIRFLOW_ADMIN_EMAIL=${AIRFLOW_ADMIN_EMAIL}
+      - AIRFLOW_ADMIN_FIRSTNAME=${AIRFLOW_ADMIN_FIRSTNAME}
+      - AIRFLOW_ADMIN_LASTNAME=${AIRFLOW_ADMIN_LASTNAME}
+      # Conexión spark_default
+      - AIRFLOW_CONN_SPARK_DEFAULT=spark://spark-master:7077
+    ports:
+      - "${AIRFLOW_PORT}:8090"
+    volumes:
+      - shared_dags_airflow:/opt/airflow/dags
+      - shared_scripts_airflow:/opt/airflow/scripts_airflow
+      - ./volumenes/airflow-logs:/opt/airflow/logs
+      - ./volumenes/airflow-plugins:/opt/airflow/plugins
+      - shared_data:/opt/airflow/shared
+    networks:
+      bigdata_net:
+        ipv4_address: ${AIRFLOW_WEB_IP}
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-scheduler
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+      - redis
+      - airflow-webserver
+    command: ["scheduler"]   # usa tu entrypoint
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY}
+      - AIRFLOW__CELERY__BROKER_URL=${AIRFLOW__CELERY__BROKER_URL}
+      - AIRFLOW__CELERY__RESULT_BACKEND=${AIRFLOW__CELERY__RESULT_BACKEND}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DB_CONN}
+      - AIRFLOW_CONN_SPARK_DEFAULT=spark://spark-master:7077
+    volumes:
+      - shared_dags_airflow:/opt/airflow/dags
+      - shared_scripts_airflow:/opt/airflow/scripts_airflow
+      - ./volumenes/airflow-logs:/opt/airflow/logs
+      - ./volumenes/airflow-plugins:/opt/airflow/plugins
+      - shared_data:/opt/airflow/shared
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      bigdata_net:
+        ipv4_address: ${AIRFLOW_SCHEDULER_IP}
+
+  airflow-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-worker
+    restart: unless-stopped
+    depends_on:
+      - airflow-webserver
+      - redis
+    command: ["worker"]      # usa tu entrypoint
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY}
+      - AIRFLOW__CELERY__BROKER_URL=${AIRFLOW__CELERY__BROKER_URL}
+      - AIRFLOW__CELERY__RESULT_BACKEND=${AIRFLOW__CELERY__RESULT_BACKEND}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DB_CONN}
+      - AIRFLOW_CONN_SPARK_DEFAULT=spark://spark-master:7077
+    volumes:
+      - shared_dags_airflow:/opt/airflow/dags
+      - shared_scripts_airflow:/opt/airflow/scripts_airflow
+      - ./volumenes/airflow-logs:/opt/airflow/logs
+      - ./volumenes/airflow-plugins:/opt/airflow/plugins
+      - shared_data:/opt/airflow/shared
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      bigdata_net:
+        ipv4_address: ${AIRFLOW_WORKER_IP}
+
+  airflow-flower:
+    image: mher/flower:1.2.0
+    container_name: airflow-flower
+    restart: unless-stopped
+    depends_on:
+      - redis
+    command: >
+      celery
+      --broker=${AIRFLOW__CELERY__BROKER_URL}
+      flower
+      --port=5555
+      --address=0.0.0.0
+      --result-backend=${AIRFLOW__CELERY__RESULT_BACKEND}
+    environment:
+      - AIRFLOW__CELERY__BROKER_URL=${AIRFLOW__CELERY__BROKER_URL}
+      - AIRFLOW__CELERY__RESULT_BACKEND=${AIRFLOW__CELERY__RESULT_BACKEND}
+    ports:
+      - "5555:5555"
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import json,urllib.request,sys; d=json.load(urllib.request.urlopen('http://127.0.0.1:5555/api/workers')); sys.exit(0 if isinstance(d, dict) else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      bigdata_net:
+        ipv4_address: ${AIRFLOW_FLOWER_IP}
+
+
+
+  n8n:
+    image: n8nio/n8n:${N8N_VERSION}
+    container_name: n8n
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=5678 #${N8N_PORT}
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - N8N_DATA_PATH=${N8N_DATA_PATH}
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n-data:${N8N_DATA_PATH}
+      - shared_data:/data/shared
+      - shared_spark_events:/data/spark-events
+      - shared_dags_airflow:/data/dags_airflow
+      - shared_scripts_airflow:/data/scripts_airflow
+    networks:
+      bigdata_net:
+        ipv4_address: ${N8N_IP}
+    healthcheck:
+      # 1) intenta /rest/health (sin auth en muchas setups)
+      # 2) si falla, acepta 200/301/302/401 en la raíz (401 es normal con Basic Auth)
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://localhost:5678/rest/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\" || node -e \"require('http').get('http://localhost:5678',r=>process.exit([200,301,302,401].includes(r.statusCode)?0:1)).on('error',()=>process.exit(1))\""
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+
+
+
+
+
+
+# ==========================================================
+# 🌐 RED COMPARTIDA ENTRE TODOS LOS SERVICIOS
+# ==========================================================
+networks:
+  bigdata_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}
+
+volumes:
+  shared_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volumenes/shared
+      o: bind
+
+  shared_spark_events:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volumenes/shared/spark-events
+      o: bind
+
+  shared_dags_airflow:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volumenes/shared/dags_airflow
+      o: bind
+
+  shared_scripts_airflow:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volumenes/shared/scripts_airflow
+      o: bind
+
+  n8n-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volumenes/n8n-data
+      o: bind
