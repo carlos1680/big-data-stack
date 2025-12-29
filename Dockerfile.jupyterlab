@@ -1,8 +1,8 @@
 # ==========================
 # Dockerfile para JupyterLab con PySpark y MariaDB JDBC
 # ==========================
-
-FROM jupyter/pyspark-notebook:spark-3.5.0
+ARG JUPYTER_VERSION=3.5.0
+FROM jupyter/pyspark-notebook:spark-${JUPYTER_VERSION}
 
 USER root
 

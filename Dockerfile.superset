@@ -1,8 +1,8 @@
 # ==========================
 # Dockerfile para Apache Superset con MariaDB
 # ==========================
-
-FROM apache/superset:3.0.2
+ARG SUPERSET_VERSION=3.0.2
+FROM apache/superset:${SUPERSET_VERSION}
 
 USER root
 

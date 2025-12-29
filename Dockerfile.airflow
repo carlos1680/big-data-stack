@@ -1,10 +1,19 @@
 # ==========================
 # Airflow extendido con PySpark, MariaDB JDBC y soporte CeleryExecutor
 # ==========================
-FROM apache/airflow:2.10.0
+ARG AIRFLOW_VERSION=2.10.0
+
+FROM apache/airflow:${AIRFLOW_VERSION}
+
+ARG AIRFLOW_VERSION_LIB=2.10.0
+ARG PYSPARK_VERSION_LIB=3.5.0
+ARG MARIADB_JDBC_URL_LIB="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar"
 
 USER root
 
+ENV AIRFLOW_VERSION_LIB=${AIRFLOW_VERSION_LIB}
+ENV PYSPARK_VERSION_LIB=${PYSPARK_VERSION_LIB}
+ENV MARIADB_JDBC_URL_LIB=${MARIADB_JDBC_URL_LIB}
 # -----------------------------------------------------------
 # 1️⃣ Dependencias del sistema (Java, mariadb-client, netcat)
 # -----------------------------------------------------------
@@ -27,20 +36,20 @@ ENV PATH=$SPARK_HOME/bin:$PATH
 # -----------------------------------------------------------
 # 3️⃣ Descargar el driver JDBC de MariaDB (para SparkSubmitOperator)
 # -----------------------------------------------------------
-ARG MARIADB_JDBC_URL="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar"
+RUN echo "Carlitos"
 RUN mkdir -p /opt/spark/jars && \
-    curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL}"
+    curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL_LIB}"
 
 # -----------------------------------------------------------
 # 4️⃣ Instalar dependencias de Python (Airflow + Spark + MinIO)
 # -----------------------------------------------------------
 USER airflow
 RUN bash -lc "pip install --no-cache-dir \
-      pyspark==3.5.0 \
+      pyspark==${PYSPARK_VERSION_LIB} \
       pandas \
       minio \
       requests \
-      apache-airflow==2.10.0 \
+      apache-airflow==${AIRFLOW_VERSION_LIB} \
       apache-airflow-providers-apache-spark \
       apache-airflow-providers-mysql \
       apache-airflow-providers-redis"

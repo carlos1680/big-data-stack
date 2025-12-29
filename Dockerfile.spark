@@ -1,19 +1,24 @@
 # ==========================
 # Dockerfile para Apache Spark con driver JDBC MariaDB
 # ==========================
-FROM apache/spark:3.5.0
-
+ARG SPARK_VERSION=3.5.0
 # ==========================
 # ARGUMENTOS DE BUILD
 # ==========================
-ARG MARIADB_JDBC_URL
-ARG MARIADB_JDBC_VERSION
+
+
+FROM apache/spark:${SPARK_VERSION}
+
+ARG MARIADB_JDBC_URL_LIB=https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar
+ARG MARIADB_JDBC_VERSION_LIB=3.3.3
+
+
 
 # ==========================
 # VARIABLES DE ENTORNO
 # ==========================
-ENV MARIADB_JDBC_URL=${MARIADB_JDBC_URL}
-ENV MARIADB_JDBC_VERSION=${MARIADB_JDBC_VERSION}
+ENV MARIADB_JDBC_URL_LIB=${MARIADB_JDBC_URL_LIB}
+ENV MARIADB_JDBC_VERSION_LIB=${MARIADB_JDBC_VERSION_LIB}
 
 # ==========================
 # DEPENDENCIAS Y UTILIDADES
@@ -41,8 +46,9 @@ RUN mkdir -p /opt/spark/conf /opt/spark/app /tmp/spark-events && \
 # ==========================
 # DRIVER JDBC MARIADB
 # ==========================
-RUN echo "📥 Descargando JDBC desde: ${MARIADB_JDBC_URL}" && \
-    curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL}"
+
+RUN echo "📥 Descargando JDBC desde:  ${MARIADB_JDBC_URL_LIB}" && \
+    curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL_LIB}"
 
 # ==========================
 # USUARIO FINAL Y PATH

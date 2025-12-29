@@ -13,6 +13,9 @@ COMPOSE_FILE="docker-compose.yml"
 # Nombre de proyecto para separar stacks en Docker Compose
 BIGDATA_PROJECT_NAME="${BIGDATA_PROJECT_NAME:-bigdata}"
 
+# Carpeta local de logs (solo para modo debug)
+LOG_DIR="${LOG_DIR:-./volumenes/controller-logs}"
+
 # 🎨 Colores
 GREEN="\e[32m"
 RED="\e[31m"
@@ -347,7 +350,19 @@ start_services_local() {
   export WEBHOOK_TUNNEL_URL="${local_webhook}"
   export N8N_EDITOR_BASE_URL="${local_webhook}"
 
-  COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d --build
+  if [[ "${DEBUG_BUILD:-0}" == "1" ]]; then
+    mkdir -p "$LOG_DIR"
+    LOG_FILE="$LOG_DIR/debug_build_$(date +%Y%m%d_%H%M%S).log"
+    echo -e "${CYAN}🐛 DEBUG: Construyendo imágenes (no-cache) con salida detallada...${RESET}"
+    echo -e "${CYAN}📝 Log: $LOG_FILE${RESET}"
+    COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" build --no-cache --progress=plain 2>&1 | tee "$LOG_FILE"
+
+    echo -e "${CYAN}🐛 DEBUG: Levantando servicios (up -d)...${RESET}"
+    COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d 2>&1 | tee -a "$LOG_FILE"
+
+  else
+    COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d --build
+  fi
 
   wait_for_service mariadb "MariaDB"
   check_mariadb
@@ -481,7 +496,11 @@ full_clean() {
 # ==========================================================
 case "${1:-}" in
   ""|up)
-    start_services_local
+    if [[ "${2:-}" == "--debug-build" || "${2:-}" == "debug" ]]; then
+      DEBUG_BUILD=1 start_services_local
+    else
+      start_services_local
+    fi
     ;;
   up-public)
     start_services_public
@@ -499,9 +518,10 @@ case "${1:-}" in
     full_clean
     ;;
   *)
-    echo -e "${YELLOW}Uso:${RESET} ./controller.sh {up|up-public|down|status|clean|full-clean}"
+    echo -e "${YELLOW}Uso:${RESET} ./controller.sh {up [--debug-build]|up-public|down|status|clean|full-clean}"
     echo -e "   (sin parámetro)  -> Big Data + n8n LOCAL (sin ngrok, http://localhost)"
     echo -e "   up               -> igual que sin parámetro (modo local)"
+    echo -e "   up --debug-build -> (LOCAL) rebuild con logs completos de build (RUN echo, etc.) + log en $LOG_DIR"
     echo -e "   up-public        -> Big Data + n8n PÚBLICO (ngrok + HTTPS)"
     ;;
 esac

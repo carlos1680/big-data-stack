@@ -76,8 +76,9 @@ services:
       context: .
       dockerfile: Dockerfile.spark
       args:
-        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
-        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+        MARIADB_JDBC_URL_LIB: ${MARIADB_JDBC_URL_LIB}
+        MARIADB_JDBC_VERSION_LIB: ${MARIADB_JDBC_VERSION_LIB}
+        SPARK_VERSION: ${SPARK_VERSION}
     container_name: spark-master
     hostname: spark-master
     restart: unless-stopped
@@ -113,8 +114,9 @@ services:
       context: .
       dockerfile: Dockerfile.spark
       args:
-        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
-        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+        MARIADB_JDBC_URL_LIB: ${MARIADB_JDBC_URL_LIB}
+        MARIADB_JDBC_VERSION_LIB: ${MARIADB_JDBC_VERSION_LIB}
+        SPARK_VERSION: ${SPARK_VERSION}
     container_name: spark-worker-1
     hostname: spark-worker-1
     restart: unless-stopped
@@ -141,8 +143,9 @@ services:
       context: .
       dockerfile: Dockerfile.spark
       args:
-        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
-        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+        MARIADB_JDBC_URL_LIB: ${MARIADB_JDBC_URL_LIB}
+        MARIADB_JDBC_VERSION_LIB: ${MARIADB_JDBC_VERSION_LIB}
+        SPARK_VERSION: ${SPARK_VERSION}
     container_name: spark-worker-2
     hostname: spark-worker-2
     restart: unless-stopped
@@ -167,10 +170,11 @@ services:
   spark-history:
     build:
       context: .
-      dockerfile: Dockerfile.spark
+      dockerfile: Dockerfile.spark      
       args:
-        MARIADB_JDBC_URL: ${MARIADB_JDBC_URL}
-        MARIADB_JDBC_VERSION: ${MARIADB_JDBC_VERSION}
+        MARIADB_JDBC_URL_LIB: ${MARIADB_JDBC_URL_LIB}
+        MARIADB_JDBC_VERSION_LIB: ${MARIADB_JDBC_VERSION_LIB}
+        SPARK_VERSION: ${SPARK_VERSION}
     container_name: spark-history
     hostname: spark-history
     restart: unless-stopped
@@ -194,6 +198,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.jupyterlab
+      args:
+        JUPYTER_VERSION: ${JUPYTER_VERSION}
     container_name: jupyterlab
     restart: unless-stopped
     environment:
@@ -218,6 +224,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.superset   # 👈 mover aquí dentro de build
+      args:
+        SUPERSET_VERSION: ${SUPERSET_VERSION}
     container_name: superset
     restart: unless-stopped
     depends_on:
@@ -256,6 +264,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.airflow
+      args:
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION}
+        AIRFLOW_VERSION_LIB: ${AIRFLOW_VERSION_LIB}
+        PYSPARK_VERSION_LIB: ${PYSPARK_VERSION_LIB}
+        MARIADB_JDBC_URL_LIB: ${MARIADB_JDBC_URL_LIB}
     container_name: airflow-webserver
     restart: unless-stopped
     depends_on:
@@ -298,6 +311,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.airflow
+      args:
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION}
+        AIRFLOW_VERSION_LIB: ${AIRFLOW_VERSION_LIB}
+        PYSPARK_VERSION_LIB: ${PYSPARK_VERSION_LIB}
+        MARIADB_JDBC_URL_LIB: ${MARIADB_JDBC_URL_LIB}
     container_name: airflow-scheduler
     restart: unless-stopped
     depends_on:
@@ -327,6 +345,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.airflow
+      args:
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION}
+        AIRFLOW_VERSION_LIB: ${AIRFLOW_VERSION_LIB}
+        PYSPARK_VERSION_LIB: ${PYSPARK_VERSION_LIB}
+        MARIADB_JDBC_URL_LIB: ${MARIADB_JDBC_URL_LIB}
     container_name: airflow-worker
     restart: unless-stopped
     depends_on:
