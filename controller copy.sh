@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # ==========================================================
-# 🧠 CONTROLADOR DE ENTORNO BIG DATA (Bruno Piriz)
+# 🧠 CONTROLADOR DE ENTORNO BIG DATA (Carlos Piriz)
 #  - Modo por defecto: LOCAL (sin ngrok, n8n en http://localhost)
 #  - Modo alternativo: PÚBLICO (ngrok + n8n HTTPS externo)
 # ==========================================================
@@ -12,6 +12,9 @@ COMPOSE_FILE="docker-compose.yml"
 
 # Nombre de proyecto para separar stacks en Docker Compose
 BIGDATA_PROJECT_NAME="${BIGDATA_PROJECT_NAME:-bigdata}"
+
+# Carpeta local de logs (solo para modo debug)
+LOG_DIR="${LOG_DIR:-./volumenes/controller-logs}"
 
 # 🎨 Colores
 GREEN="\e[32m"
@@ -73,6 +76,52 @@ fix_volumes() {
 
   echo -e "${GREEN}✅ Volúmenes y archivos base verificados.${RESET}"
 }
+
+
+# ==========================================================
+# 📍 RUTA BASE DEL SCRIPT (independiente del pwd)
+# ==========================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ==========================================================
+# 🧬 GENERACIÓN DE SQL DESDE TEMPLATE
+# ==========================================================
+SQL_TEMPLATE="${SCRIPT_DIR}/init-sql/00-init-all.sql.template"
+SQL_OUTPUT="${SCRIPT_DIR}/init-sql/00-init-all.sql"
+
+
+
+generate_init_sql() {
+  echo -e "${YELLOW}🧬 Generando SQL de inicialización desde template...${RESET}"
+
+  local required_vars=(
+    MARIADB_USER
+    MARIADB_PASSWORD
+    MARIADB_DATABASE
+    SUPERSET_DB_NAME
+    AIRFLOW_DB_NAME
+  )
+
+  for var in "${required_vars[@]}"; do
+    if [ -z "${!var:-}" ]; then
+      echo -e "${RED}❌ Variable requerida no definida: $var${RESET}"
+      exit 1
+    fi
+  done
+
+  if [ ! -f "$SQL_TEMPLATE" ]; then
+    echo -e "${RED}❌ No se encontró el template $SQL_TEMPLATE${RESET}"
+    exit 1
+  fi
+
+  export GENERATED_AT
+  GENERATED_AT="$(date '+%Y-%m-%d %H:%M:%S')"
+
+  envsubst < "$SQL_TEMPLATE" > "$SQL_OUTPUT"
+
+  echo -e "${GREEN}✅ SQL generado correctamente: $SQL_OUTPUT${RESET}"
+}
+
 
 # ==========================================================
 # ⏳ UTILIDADES DE ESPERA
@@ -334,6 +383,7 @@ ensure_airflow_connection() {
 # ==========================================================
 start_services_local() {
   echo -e "${CYAN}${BOLD}🚀 Iniciando entorno Big Data (modo LOCAL, sin ngrok)...${RESET}"
+  generate_init_sql
   fix_volumes
 
   # NO arrancamos ngrok en modo local
@@ -348,13 +398,15 @@ start_services_local() {
   export N8N_EDITOR_BASE_URL="${local_webhook}"
 
   if [[ "${DEBUG_BUILD:-0}" == "1" ]]; then
-    echo -e "${CYAN}${BOLD}🐞 Build DEBUG (logs completos de Dockerfile: RUN echo, etc.)${RESET}"
-    # Forzamos rebuild para ver logs. Solo para uso local.
-    DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain \
-    COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" \
-      build --no-cache --progress=plain
-    COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" \
-      up -d
+    mkdir -p "$LOG_DIR"
+    LOG_FILE="$LOG_DIR/debug_build_$(date +%Y%m%d_%H%M%S).log"
+    echo -e "${CYAN}🐛 DEBUG: Construyendo imágenes (no-cache) con salida detallada...${RESET}"
+    echo -e "${CYAN}📝 Log: $LOG_FILE${RESET}"
+    COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" build --no-cache --progress=plain 2>&1 | tee "$LOG_FILE"
+
+    echo -e "${CYAN}🐛 DEBUG: Levantando servicios (up -d)...${RESET}"
+    COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d 2>&1 | tee -a "$LOG_FILE"
+
   else
     COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d --build
   fi
@@ -398,6 +450,7 @@ start_services_local() {
 # ==========================================================
 start_services_public() {
   echo -e "${CYAN}${BOLD}🚀 Iniciando entorno Big Data (modo PÚBLICO, ngrok + HTTPS)...${RESET}"
+  generate_init_sql
   fix_volumes
 
   start_ngrok_for_n8n
@@ -516,7 +569,7 @@ case "${1:-}" in
     echo -e "${YELLOW}Uso:${RESET} ./controller.sh {up [--debug-build]|up-public|down|status|clean|full-clean}"
     echo -e "   (sin parámetro)  -> Big Data + n8n LOCAL (sin ngrok, http://localhost)"
     echo -e "   up               -> igual que sin parámetro (modo local)"
-    echo -e "   up --debug-build -> (LOCAL) rebuild con logs completos de build (RUN echo, etc.)"
+    echo -e "   up --debug-build -> (LOCAL) rebuild con logs completos de build (RUN echo, etc.) + log en $LOG_DIR"
     echo -e "   up-public        -> Big Data + n8n PÚBLICO (ngrok + HTTPS)"
     ;;
 esac

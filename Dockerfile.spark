@@ -30,6 +30,9 @@ RUN apt-get update && \
     apt-get install -y wget curl bash && \
     rm -rf /var/lib/apt/lists/*
 
+# Instalamos python-dotenv para leer archivos .env
+RUN pip3 install --no-cache-dir python-dotenv
+
 # Aseguramos que el usuario spark (UID 185) pueda usar /tmp (para wget/curl)
 RUN chmod 777 /tmp
 

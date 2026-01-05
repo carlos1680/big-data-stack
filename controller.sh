@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-# ==========================================================
-# 🧠 CONTROLADOR DE ENTORNO BIG DATA (Bruno Piriz)
+# ====
+# 🧠 CONTROLADOR DE ENTORNO BIG DATA (Carlos Piriz)
 #  - Modo por defecto: LOCAL (sin ngrok, n8n en http://localhost)
 #  - Modo alternativo: PÚBLICO (ngrok + n8n HTTPS externo)
-# ==========================================================
+# ====
 
 ENV_FILE=".env"
 COMPOSE_FILE="docker-compose.yml"
@@ -24,9 +24,9 @@ CYAN="\e[36m"
 BOLD="\e[1m"
 RESET="\e[0m"
 
-# ==========================================================
+# ====
 # ⚙️ CARGAR VARIABLES .ENV
-# ==========================================================
+# ====
 if [ -f "$ENV_FILE" ]; then
   echo -e "${YELLOW}⚙️  Cargando variables desde $ENV_FILE...${RESET}"
   # shellcheck disable=SC2046
@@ -36,9 +36,9 @@ else
   exit 1
 fi
 
-# ==========================================================
+# ====
 # 🧩 VERIFICACIÓN DE VOLÚMENES Y ARCHIVOS BASE
-# ==========================================================
+# ====
 fix_volumes() {
   echo -e "${YELLOW}🧩 Verificando estructura de volúmenes locales...${RESET}"
 
@@ -77,9 +77,55 @@ fix_volumes() {
   echo -e "${GREEN}✅ Volúmenes y archivos base verificados.${RESET}"
 }
 
-# ==========================================================
+
+# ====
+# 📍 RUTA BASE DEL SCRIPT (independiente del pwd)
+# ====
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ====
+# 🧬 GENERACIÓN DE SQL DESDE TEMPLATE
+# ====
+SQL_TEMPLATE="${SCRIPT_DIR}/init-sql/00-init-all.sql.template"
+SQL_OUTPUT="${SCRIPT_DIR}/init-sql/00-init-all.sql"
+
+
+
+generate_init_sql() {
+  echo -e "${YELLOW}🧬 Generando SQL de inicialización desde template...${RESET}"
+
+  local required_vars=(
+    MARIADB_USER
+    MARIADB_PASSWORD
+    MARIADB_DATABASE
+    SUPERSET_DB_NAME
+    AIRFLOW_DB_NAME
+  )
+
+  for var in "${required_vars[@]}"; do
+    if [ -z "${!var:-}" ]; then
+      echo -e "${RED}❌ Variable requerida no definida: $var${RESET}"
+      exit 1
+    fi
+  done
+
+  if [ ! -f "$SQL_TEMPLATE" ]; then
+    echo -e "${RED}❌ No se encontró el template $SQL_TEMPLATE${RESET}"
+    exit 1
+  fi
+
+  export GENERATED_AT
+  GENERATED_AT="$(date '+%Y-%m-%d %H:%M:%S')"
+
+  envsubst < "$SQL_TEMPLATE" > "$SQL_OUTPUT"
+
+  echo -e "${GREEN}✅ SQL generado correctamente: $SQL_OUTPUT${RESET}"
+}
+
+
+# ====
 # ⏳ UTILIDADES DE ESPERA
-# ==========================================================
+# ====
 wait_for_http() {
   local port="$1"
   local path="${2:-/}"
@@ -185,9 +231,34 @@ wait_for_n8n() {
   return 1
 }
 
-# ==========================================================
+# ✅ KAFKA (chequeo de disponibilidad)
+wait_for_kafka() {
+  local name="kafka-broker"
+  local max_attempts=20
+  local sleep_time=3
+
+  # Si el contenedor no existe, salir sin error
+  if ! docker ps -a --format '{{.Names}}' | grep -q "^${name}$"; then
+    return 0
+  fi
+
+  echo -e "${YELLOW}⏳ Esperando Kafka Broker...${RESET}"
+  for i in $(seq 1 "${max_attempts}"); do
+    # Intenta listar topics como prueba de que Kafka está listo
+    if docker exec "${name}" kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1; then
+      echo -e "${GREEN}✅ Kafka Broker respondió correctamente.${RESET}"
+      return 0
+    fi
+    echo -e "${YELLOW}⌛ Intento ${i}/${max_attempts} - esperando ${sleep_time}s...${RESET}"
+    sleep "${sleep_time}"
+  done
+  echo -e "${RED}❌ Kafka Broker no respondió a tiempo.${RESET}"
+  return 1
+}
+
+# ====
 # 🔌 NGROK PARA N8N (modo público)
-# ==========================================================
+# ====
 NGROK_PIDFILE=".ngrok-n8n.pid"
 
 stop_ngrok_for_n8n() {
@@ -262,9 +333,9 @@ start_ngrok_for_n8n() {
   fi
 }
 
-# ==========================================================
+# ====
 # 🧪 INFO ÚTIL (OAuth y URL pública)
-# ==========================================================
+# ====
 print_n8n_oauth_info() {
   local proto="${N8N_PROTOCOL:-http}"
   local host="${N8N_HOST:-localhost}"
@@ -293,9 +364,9 @@ print_ngrok_public_url() {
   echo -e "${CYAN}${BOLD}🌍 n8n (externo via ngrok):${RESET} ${GREEN}${base}${RESET}  ${YELLOW}(BasicAuth ${N8N_BASIC_AUTH_USER:-admin}/${N8N_BASIC_AUTH_PASSWORD:-admin})${RESET}"
 }
 
-# ==========================================================
+# ====
 # ✅ CHEQUEOS DE SERVICIOS (DB/Airflow)
-# ==========================================================
+# ====
 check_mariadb() {
   echo -e "${YELLOW}🔍 Verificando conexión a MariaDB...${RESET}"
   if docker exec mariadb mariadb -u"${MARIADB_USER}" -p"${MARIADB_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; then
@@ -332,11 +403,12 @@ ensure_airflow_connection() {
   fi
 }
 
-# ==========================================================
+# ====
 # 🚀 INICIAR ENTORNO BIG DATA (MODO LOCAL, SIN NGROK)  [POR DEFECTO]
-# ==========================================================
+# ====
 start_services_local() {
   echo -e "${CYAN}${BOLD}🚀 Iniciando entorno Big Data (modo LOCAL, sin ngrok)...${RESET}"
+  generate_init_sql
   fix_volumes
 
   # NO arrancamos ngrok en modo local
@@ -367,6 +439,8 @@ start_services_local() {
   wait_for_service mariadb "MariaDB"
   check_mariadb
 
+  wait_for_kafka
+
   wait_for_service spark-master "Spark Master"
   wait_for_service superset "Superset"
   wait_for_service jupyterlab "JupyterLab"
@@ -389,6 +463,7 @@ start_services_local() {
   echo -e "${CYAN}${BOLD}🌐 SERVICIOS BIG DATA (MODO LOCAL):${RESET}"
   echo -e "➡️  ${BOLD}MariaDB (Adminer):${RESET} ${GREEN}http://localhost:8089${RESET}   ${YELLOW}(user:${MARIADB_USER} / pass:${MARIADB_PASSWORD})${RESET}"
   echo -e "➡️  ${BOLD}MinIO Console:${RESET}  ${GREEN}http://localhost:${MINIO_CONSOLE_PORT}${RESET}   ${YELLOW}(user:${MINIO_ROOT_USER} / pass:${MINIO_ROOT_PASSWORD})${RESET}"
+  echo -e "➡️  ${BOLD}Kafka Broker:${RESET}   ${GREEN}localhost:${KAFKA_BROKER_PORT:-9092}${RESET}   ${YELLOW}(bootstrap: kafka-broker:9092 desde contenedores)${RESET}"
   echo -e "➡️  ${BOLD}Spark Master:${RESET}   ${GREEN}http://localhost:${SPARK_MASTER_WEBUI_PORT}${RESET}"
   echo -e "➡️  ${BOLD}Spark History:${RESET}  ${GREEN}http://localhost:${SPARK_HISTORY_PORT}${RESET}"
   echo -e "➡️  ${BOLD}Airflow Web:${RESET}    ${GREEN}http://localhost:${AIRFLOW_HTTP_PORT}${RESET}   ${YELLOW}(user:${AIRFLOW_ADMIN_USER} / pass:${AIRFLOW_ADMIN_PASS})${RESET}"
@@ -398,11 +473,12 @@ start_services_local() {
   echo -e "➡️  ${BOLD}n8n (local, sin ngrok):${RESET} ${GREEN}${local_webhook}${RESET}   ${YELLOW}(user:${N8N_BASIC_AUTH_USER} / pass:${N8N_BASIC_AUTH_PASSWORD})${RESET}"
 }
 
-# ==========================================================
+# ====
 # 🚀 INICIAR ENTORNO BIG DATA (MODO PÚBLICO CON NGROK)
-# ==========================================================
+# ====
 start_services_public() {
   echo -e "${CYAN}${BOLD}🚀 Iniciando entorno Big Data (modo PÚBLICO, ngrok + HTTPS)...${RESET}"
+  generate_init_sql
   fix_volumes
 
   start_ngrok_for_n8n
@@ -444,9 +520,9 @@ start_services_public() {
   echo -e "➡️  ${BOLD}n8n (local):${RESET}     ${GREEN}http://localhost:${N8N_PORT}${RESET}   ${YELLOW}(user:${N8N_BASIC_AUTH_USER} / pass:${N8N_BASIC_AUTH_PASSWORD})${RESET}"
 }
 
-# ==========================================================
+# ====
 # 🛑 DETENER ENTORNO BIG DATA
-# ==========================================================
+# ====
 stop_services() {
   echo -e "${YELLOW}🛑 Deteniendo contenedores Big Data...${RESET}"
   COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" down
@@ -454,26 +530,26 @@ stop_services() {
   echo -e "${GREEN}✅ Entorno Big Data detenido correctamente.${RESET}"
 }
 
-# ==========================================================
+# ====
 # 📊 ESTADO ACTUAL BIG DATA
-# ==========================================================
+# ====
 status_services() {
   echo -e "${YELLOW}📊 Estado actual de contenedores Big Data:${RESET}"
   COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" ps
 }
 
-# ==========================================================
+# ====
 # 🧹 LIMPIEZA PARCIAL
-# ==========================================================
+# ====
 clean() {
   echo -e "${YELLOW}🧹 Limpiando logs de Airflow y eventos de Spark...${RESET}"
   rm -rf volumenes/airflow-logs/* volumenes/shared/spark-events/* 2>/dev/null || true
   echo -e "${GREEN}✅ Limpieza parcial completada.${RESET}"
 }
 
-# ==========================================================
+# ====
 # 💣 LIMPIEZA TOTAL
-# ==========================================================
+# ====
 full_clean() {
   echo -e "${RED}${BOLD}⚠️  ESTA ACCIÓN ELIMINA TODO:${RESET}"
   echo -e "   - Contenedores, volúmenes e imágenes locales"
@@ -491,9 +567,9 @@ full_clean() {
   echo -e "${GREEN}✅ Limpieza total completada.${RESET}"
 }
 
-# ==========================================================
+# ====
 # MENU PRINCIPAL
-# ==========================================================
+# ====
 case "${1:-}" in
   ""|up)
     if [[ "${2:-}" == "--debug-build" || "${2:-}" == "debug" ]]; then

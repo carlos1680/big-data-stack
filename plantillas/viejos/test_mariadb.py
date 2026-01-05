@@ -1,34 +1,15 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.utils import AnalysisException
-import os
-from pathlib import Path
-from dotenv import load_dotenv
 
-# ====
-# 📁 CARGAR VARIABLES DEL .env (un nivel superior)
-# ====
-current_dir = Path(__file__).resolve().parent
-parent_dir = current_dir.parent
-env_path = parent_dir / '.env'
-
-# Cargar las variables del archivo .env
-load_dotenv(dotenv_path=env_path)
-print(f"🔍 Cargando variables desde: {env_path}")
-
-# ====
-# 🔧 CONFIGURACIÓN DE CONEXIÓN (desde .env)
-# ====
-DB_HOST = os.getenv("DB_HOST", "mariadb")
-DB_PORT = os.getenv("DB_PORT", "3306")
-DB_NAME = os.getenv("DB_NAME", "bigdata_db")
-DB_USER = os.getenv("DB_USER", "bigdata_user")
-DB_PASS = os.getenv("DB_PASS", "bigdata_pass")
-TABLE_NAME = os.getenv("DB_TABLE", "sensores")
-
-JDBC_JAR = os.getenv("JDBC_JAR", "/opt/spark/jars/mariadb-java-client.jar")
-SPARK_APP_NAME = os.getenv("SPARK_APP_NAME", "TestMariaDB_Stable")
-SPARK_SESSION_TZ = os.getenv("SPARK_SESSION_TZ", "UTC")
-JDBC_FETCHSIZE = os.getenv("JDBC_FETCHSIZE", "1000")
+# ==============================
+# 🔧 CONFIGURACIÓN DE CONEXIÓN
+# ==============================
+DB_HOST = "mariadb"
+DB_PORT = "3306"
+DB_NAME = "bigdata_db"
+DB_USER = "bigdata_user"
+DB_PASS = "bigdata_pass"
+TABLE_NAME = "sensores"
 
 # URL JDBC (MariaDB) con flags recomendados
 JDBC_URL = (
@@ -41,26 +22,27 @@ JDBC_URL = (
     "&zeroDateTimeBehavior=convertToNull"
 )
 
-# ====
+# ==============================
 # 🚀 INICIAR SESIÓN SPARK
-# ====
+# ==============================
 spark = (
     SparkSession.builder
-    .appName(SPARK_APP_NAME)
-    .config("spark.jars", JDBC_JAR)
+    .appName("TestMariaDB_Stable")
+    # Asegurate de que este .jar esté presente en /opt/spark/jars
+    .config("spark.jars", "/opt/spark/jars/mariadb-java-client.jar")
     .getOrCreate()
 )
 
 # Fijar zona horaria de la sesión para columnas TIMESTAMP
-spark.sql(f"SET spark.sql.session.timeZone={SPARK_SESSION_TZ}")
+spark.sql("SET spark.sql.session.timeZone=UTC")
 
 print("🔌 Intentando conectar a MariaDB...")
 print(f"   → URL: {JDBC_URL}")
 print(f"   → Tabla: {TABLE_NAME}")
 
-# ====
+# ==============================
 # 📥 LECTURA DESDE MARIADB
-# ====
+# ==============================
 try:
     df = (
         spark.read.format("jdbc")
@@ -69,11 +51,12 @@ try:
         .option("user", DB_USER)
         .option("password", DB_PASS)
         .option("driver", "org.mariadb.jdbc.Driver")
-        .option("fetchsize", JDBC_FETCHSIZE)
+        .option("fetchsize", "1000")   # tuning para tablas grandes
         .load()
     )
 
     print("\n✅ Conexión exitosa. Mostrando los primeros registros:\n")
+    # Mostrar hasta 100 filas y sin truncar columnas
     df.show(100, truncate=False)
 
     print("\n📊 Esquema de la tabla:")
@@ -81,6 +64,17 @@ try:
 
     total = df.count()
     print(f"\n📈 Total de filas: {total}")
+
+    # OPCIONAL: convertir a double para ciertos cálculos
+    # df_num = df.selectExpr(
+    #     "id",
+    #     "dispositivo",
+    #     "CAST(temperatura AS DOUBLE) AS temperatura",
+    #     "CAST(humedad AS DOUBLE) AS humedad",
+    #     "fecha"
+    # )
+    # df_num.printSchema()
+    # df_num.show(100, truncate=False)
 
 except AnalysisException as e:
     print(f"⚠️ Error de análisis Spark: {e}")

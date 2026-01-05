@@ -1,27 +1,27 @@
 -- =====================================================
 -- GENERATED FILE - DO NOT EDIT MANUALLY
 -- Source: 00-init-all.sql.template
--- Generated at: 2026-01-04 20:56:54
+-- Generated at: ${GENERATED_AT}
 -- Author: Carlos Piriz
 -- =====================================================
 
 -- ==========================
 -- USUARIO GLOBAL
 -- ==========================
-CREATE USER IF NOT EXISTS 'bigdata_user'@'%'
-IDENTIFIED BY 'bigdata_pass';
+CREATE USER IF NOT EXISTS '${MARIADB_USER}'@'%'
+IDENTIFIED BY '${MARIADB_PASSWORD}';
 
-GRANT ALL PRIVILEGES ON *.* TO 'bigdata_user'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO '${MARIADB_USER}'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 
 -- ==========================
 -- BASE DE DATOS: BIG DATA
 -- ==========================
-CREATE DATABASE IF NOT EXISTS bigdata_db
+CREATE DATABASE IF NOT EXISTS ${MARIADB_DATABASE}
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE bigdata_db;
+USE ${MARIADB_DATABASE};
 
 CREATE TABLE IF NOT EXISTS sensores (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,20 +41,20 @@ VALUES
 -- ==========================
 -- BASE DE DATOS: SUPERSET
 -- ==========================
-CREATE DATABASE IF NOT EXISTS superset_db
+CREATE DATABASE IF NOT EXISTS ${SUPERSET_DB_NAME}
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-GRANT ALL PRIVILEGES ON superset_db.* TO 'bigdata_user'@'%';
+GRANT ALL PRIVILEGES ON ${SUPERSET_DB_NAME}.* TO '${MARIADB_USER}'@'%';
 
 -- ==========================
 -- BASE DE DATOS: AIRFLOW
 -- ==========================
-CREATE DATABASE IF NOT EXISTS airflow_db
+CREATE DATABASE IF NOT EXISTS ${AIRFLOW_DB_NAME}
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-GRANT ALL PRIVILEGES ON airflow_db.* TO 'bigdata_user'@'%';
+GRANT ALL PRIVILEGES ON ${AIRFLOW_DB_NAME}.* TO '${MARIADB_USER}'@'%';
 
 FLUSH PRIVILEGES;
 

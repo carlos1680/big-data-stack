@@ -52,7 +52,8 @@ RUN bash -lc "pip install --no-cache-dir \
       apache-airflow==${AIRFLOW_VERSION_LIB} \
       apache-airflow-providers-apache-spark \
       apache-airflow-providers-mysql \
-      apache-airflow-providers-redis"
+      apache-airflow-providers-redis \
+      python-dotenv"
 
 USER root
 
