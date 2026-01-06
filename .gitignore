@@ -46,6 +46,7 @@ Thumbs.db
 
 # ---- local data / volumes / runtime ----
 volumenes/
+init-sql/00-init-all.sql
 data/
 tmp/
 cache/

@@ -67,6 +67,33 @@ services:
     networks:
       bigdata_net:
         ipv4_address: ${MINIO_IP}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ====
+  # 🛠️ MINIO-INIT – Crea buckets automáticamente
+  # ====
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      echo '🔧 Configurando alias MinIO...';
+      /usr/bin/mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      echo '📦 Creando bucket ${MINIO_BUCKET}...';
+      /usr/bin/mc mb -p local/${MINIO_BUCKET} || echo 'Bucket ya existe';
+      echo '✅ Bucket listo';
+      exit 0;
+      "
+    networks:
+      - bigdata_net
 
   # ======================================================
   # ⚙️ SPARK – Cluster completo (Master + 2 Workers + History)
@@ -162,7 +189,7 @@ services:
       - shared_scripts_airflow:/opt/spark/app
       - shared_spark_events:/tmp/spark-events
       - ./volumenes/spark:/opt/spark/work-dir
-      - shared_data:/opt/shared              # 👈 carpeta compartida visible en Spark
+      - shared_data:/opt/shared            # 👈 carpeta compartida visible en Spark
     networks:
       bigdata_net:
         ipv4_address: ${SPARK_WORKER2_IP}
@@ -470,6 +497,8 @@ services:
       - zookeeper
     ports:
       - "${KAFKA_BROKER_PORT:-9092}:9092"
+    volumes:
+      - shared_data:/shared
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181

@@ -67,11 +67,30 @@ fix_volumes() {
   # DAGs y scripts
   if [ -f "./plantillas/dag_test_mariadb.py" ]; then
     cp -f ./plantillas/dag_test_mariadb.py ./volumenes/shared/dags_airflow/
+    cp -f ./plantillas/dag_kafka_to_minio.py ./volumenes/shared/dags_airflow/
+    cp -f ./plantillas/dag_mariadb_to_kafka.py ./volumenes/shared/dags_airflow/
+    cp -f ./plantillas/dag_kafka_to_csv.py ./volumenes/shared/dags_airflow/
+    cp -f ./plantillas/dag_spark_get_data_minio.py ./volumenes/shared/dags_airflow/
+    
     chmod 666 ./volumenes/shared/dags_airflow/dag_test_mariadb.py
+    chmod 666 ./volumenes/shared/dags_airflow/dag_kafka_to_minio.py
+    chmod 666 ./volumenes/shared/dags_airflow/dag_mariadb_to_kafka.py
+    chmod 666 ./volumenes/shared/dags_airflow/dag_kafka_to_csv.py
+    chmod 666 ./volumenes/shared/dags_airflow/dag_spark_get_data_minio.py
   fi
   if [ -f "./plantillas/test_mariadb.py" ]; then
+
     cp -f ./plantillas/test_mariadb.py ./volumenes/shared/scripts_airflow/
+    cp -f ./plantillas/script_spark_mariadb_to_kafka.py ./volumenes/shared/scripts_airflow/
+    cp -f ./plantillas/spark_kafka_to_csv.py ./volumenes/shared/scripts_airflow/
+    cp -f ./plantillas/spark_kafka_to_minio.py ./volumenes/shared/scripts_airflow/
+    cp -f ./plantillas/spark_get_data_minio.py ./volumenes/shared/scripts_airflow/
+
     chmod 666 ./volumenes/shared/scripts_airflow/test_mariadb.py
+    chmod 666 ./volumenes/shared/scripts_airflow/script_spark_mariadb_to_kafka.py
+    chmod 666 ./volumenes/shared/scripts_airflow/spark_kafka_to_csv.py
+    chmod 666 ./volumenes/shared/scripts_airflow/spark_kafka_to_minio.py
+    chmod 666 ./volumenes/shared/scripts_airflow/spark_get_data_minio.py
   fi
 
   echo -e "${GREEN}✅ Volúmenes y archivos base verificados.${RESET}"
