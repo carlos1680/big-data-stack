@@ -1,4 +1,4 @@
-# Big Data Stack (Docker Compose) — MariaDB + Spark + Airflow + Superset + Jupyter + MinIO + n8n + Kafka
+# Big Data Stack (Docker Compose) — MariaDB + Spark + Airflow + Superset + Jupyter + MinIO + n8n
 
 Repositorio **demo/portfolio** para levantar un entorno Big Data “end-to-end” en **un solo `docker compose`**.
 La idea es poder practicar (y mostrar) ingestión, procesamiento distribuido, orquestación y BI, sin depender de cloud.
@@ -7,8 +7,7 @@ La idea es poder practicar (y mostrar) ingestión, procesamiento distribuido, or
 
 - **MariaDB** (fuente de datos + DBs de Airflow/Superset)
 - **Adminer** (UI para DB)
-- **MinIO** (S3-compatible / datalake)
-- **Apache Kafka** (+ **Zookeeper**) (streaming / event bus)
+- **MinIO** (S3-compatible)
 - **Apache Spark** (master + 2 workers + history server)
 - **JupyterLab** (conectado a Spark)
 - **Apache Superset** (BI / dashboards)
@@ -23,7 +22,7 @@ La idea es poder practicar (y mostrar) ingestión, procesamiento distribuido, or
 
 - Docker Engine + Docker Compose plugin
 - 8 GB RAM mínimo (ideal 16 GB si vas a correr Spark + Superset + Airflow juntos)
-- Puertos libres: 3306, 8080-8082, 8088-8090, 8888, 9000-9001, 5555, 5678, **9092**, **2181**
+- Puertos libres: 3306, 8080-8082, 8088-8090, 8888, 9000-9001, 5555, 5678
 
 ---
 
@@ -103,14 +102,6 @@ docker compose logs -f --tail=200
 | Flower | http://localhost:5555 |
 | n8n | http://localhost:5678 |
 
-### Kafka / Zookeeper (nota)
-Kafka **no** expone una UI web por defecto (no es `http://localhost:9092/`).
-Se accede vía clientes Kafka:
-
-- **Desde el host:** `localhost:9092`
-- **Desde contenedores en la red:** `kafka-broker:9092`
-- **Zookeeper (si aplica):** `localhost:2181` (host) / `zookeeper:2181` (docker network)
-
 > Credenciales: usá las del `.env` (por defecto el user suele ser `admin` y la pass la definís vos).
 
 ---
@@ -125,25 +116,7 @@ Podés conectarte desde Adminer o desde tu host:
 docker exec -it mariadb mysql -u${MARIADB_USER} -p${MARIADB_PASSWORD} ${MARIADB_DATABASE}
 ```
 
-### B) Probar Kafka (crear topic + producir/consumir)
-Ejemplo simple usando el container de Kafka:
-
-Crear topic:
-```bash
-docker exec -it kafka-broker bash -lc "kafka-topics --bootstrap-server kafka-broker:9092 --create --topic test_topic --partitions 1 --replication-factor 1"
-```
-
-Producir mensajes:
-```bash
-docker exec -it kafka-broker bash -lc "kafka-console-producer --bootstrap-server kafka-broker:9092 --topic test_topic"
-```
-
-Consumir mensajes (en otra terminal):
-```bash
-docker exec -it kafka-broker bash -lc "kafka-console-consumer --bootstrap-server kafka-broker:9092 --topic test_topic --from-beginning"
-```
-
-### C) Probar Spark desde Jupyter
+### B) Probar Spark desde Jupyter
 Abrí Jupyter y ejecutá el notebook de ejemplo:
 - `notebooks/sensores_demo.ipynb`
 
