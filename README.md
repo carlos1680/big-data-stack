@@ -22,6 +22,8 @@ La idea es poder practicar (y mostrar) ingestión, procesamiento distribuido, or
 ## ✅ Requisitos
 
 - Docker Engine + Docker Compose plugin
+- Ngrok, si quiere usar N8N publico
+- Nodejs 
 - 8 GB RAM mínimo (ideal 16 GB si vas a correr Spark + Superset + Airflow juntos)
 - Puertos libres: 3306, 8080-8082, 8088-8090, 8888, 9000-9001, 5555, 5678, **9092**, **2181**
 
@@ -66,25 +68,14 @@ PY
 > python -m pip install cryptography
 > ```
 
-### 3) Levantar el stack
-Opción A (recomendada si usás el controlador):
-```bash
-chmod +x controller.sh
-./controller.sh up
-```
-
-Opción B (directo con compose):
-```bash
-docker compose up -d
-```
-
-### 4) Verificar
-```bash
-docker compose ps
-docker compose logs -f --tail=200
-```
-
----
+### 3) Administrar el stack
+#### ./controller.sh help ####
+⚙️  Cargando variables desde .env...
+Uso: 
+- ./controller.sh {up [--debug-build]|up-public|down|status|clean|full-clean}
+- (sin parámetro)  -> Big Data + n8n LOCAL (sin ngrok, http://localhost)
+- up               -> igual que sin parámetro (modo local)
+- up --debug-build -> (LOCAL) rebuild con logs completos de build (RUN echo, etc.) + log en ./volumenes/controller-- - - up-public        -> Big Data + n8n PÚBLICO (ngrok + HTTPS)
 
 ## 🌐 URLs (local)
 
@@ -147,19 +138,6 @@ docker exec -it kafka-broker bash -lc "kafka-console-consumer --bootstrap-server
 Abrí Jupyter y ejecutá el notebook de ejemplo:
 - `notebooks/sensores_demo.ipynb`
 
----
-
-## 🧹 Apagar y limpiar
-
-Parar contenedores:
-```bash
-docker compose down
-```
-
-Borrar **volúmenes** (⚠️ borra datos locales):
-```bash
-docker compose down -v
-```
 
 ---
 
@@ -181,4 +159,4 @@ Si querés dejarlo más completo, podés agregar:
 ---
 
 ## 📄 Licencia
-MIT (o la que prefieras).
+MIT.
