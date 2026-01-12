@@ -64,6 +64,7 @@ services:
       - "${MINIO_CONSOLE_PORT}:9001"
     volumes:
       - ./volumenes/minio/data:/data
+      - shared_minio:/shareddata
     networks:
       bigdata_net:
         ipv4_address: ${MINIO_IP}
@@ -123,6 +124,7 @@ services:
       - shared_spark_events:/tmp/spark-events
       - ./volumenes/spark:/opt/spark/work-dir
       - shared_data:/opt/shared              # 👈 carpeta compartida visible en Spark
+      - shared_minio:/opt/minio/shareddata
     networks:
       bigdata_net:
         ipv4_address: ${SPARK_MASTER_IP}
@@ -161,6 +163,7 @@ services:
       - shared_spark_events:/tmp/spark-events
       - ./volumenes/spark:/opt/spark/work-dir
       - shared_data:/opt/shared              # 👈 carpeta compartida visible en Spark
+      - shared_minio:/opt/minio/shareddata
     networks:
       bigdata_net:
         ipv4_address: ${SPARK_WORKER1_IP}
@@ -190,6 +193,7 @@ services:
       - shared_spark_events:/tmp/spark-events
       - ./volumenes/spark:/opt/spark/work-dir
       - shared_data:/opt/shared            # 👈 carpeta compartida visible en Spark
+      - shared_minio:/opt/minio/shareddata
     networks:
       bigdata_net:
         ipv4_address: ${SPARK_WORKER2_IP}
@@ -240,6 +244,7 @@ services:
       - shared_data:/home/jovyan/work/shared   # 👈 vuelve la carpeta compartida
       - shared_scripts_airflow:/home/jovyan/work/scripts_airflow:ro
       - shared_dags_airflow:/home/jovyan/work/dags_airflow:ro
+      - shared_minio:/home/jovyan/work/miniodata:ro
     networks:
       bigdata_net:
         ipv4_address: ${JUPYTER_IP}
@@ -329,7 +334,6 @@ services:
       - shared_scripts_airflow:/opt/airflow/scripts_airflow
       - ./volumenes/airflow-logs:/opt/airflow/logs
       - ./volumenes/airflow-plugins:/opt/airflow/plugins
-      - shared_data:/opt/airflow/shared
     networks:
       bigdata_net:
         ipv4_address: ${AIRFLOW_WEB_IP}
@@ -396,7 +400,7 @@ services:
       - ./volumenes/airflow-logs:/opt/airflow/logs
       - ./volumenes/airflow-plugins:/opt/airflow/plugins
       - shared_data:/opt/airflow/shared
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock      
     networks:
       bigdata_net:
         ipv4_address: ${AIRFLOW_WORKER_IP}
@@ -561,6 +565,13 @@ volumes:
     driver_opts:
       type: none
       device: ./volumenes/shared/scripts_airflow
+      o: bind
+  
+  shared_minio:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volumenes/shared/minio/data
       o: bind
 
   n8n-data:

@@ -48,6 +48,10 @@ ENV SPARK_HOME=/usr/local/spark \
     PYSPARK_DRIVER_PYTHON=jupyter \
     PYSPARK_DRIVER_PYTHON_OPTS="lab --ip=0.0.0.0 --port=8888 --no-browser --NotebookApp.token=${JUPYTER_TOKEN} --NotebookApp.allow_origin='*'" \
     PATH="$SPARK_HOME/bin:$PATH"
+# -----------------------------------------------------------
+# 4.1️⃣ Instalar versiones compatibles de numpy y pandas
+# -----------------------------------------------------------
+RUN pip install --no-cache-dir numpy==1.24.4 pandas==2.1.4
 
 # -----------------------------------------------------------
 # 6️⃣ Volvemos al usuario jovyan

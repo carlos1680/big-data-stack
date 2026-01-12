@@ -43,13 +43,16 @@ fix_volumes() {
   echo -e "${YELLOW}🧩 Verificando estructura de volúmenes locales...${RESET}"
 
   mkdir -p volumenes/{superset,jupyterlab,shared,airflow-logs,airflow-plugins,redis-data,n8n-data}
-  mkdir -p volumenes/shared/{dags_airflow,scripts_airflow,spark-events}
+  mkdir -p volumenes/shared/{dags_airflow,scripts_airflow,spark-events,minio}
+  mkdir -p volumenes/shared/minio/data
 
   echo -e "${YELLOW}🔧 Ajustando permisos en carpetas de trabajo...${RESET}"
   chmod -R 777 \
     volumenes/superset \
     volumenes/jupyterlab \
     volumenes/shared \
+    volumenes/shared/minio \
+    volumenes/shared/minio/data \
     volumenes/airflow-logs \
     volumenes/airflow-plugins \
     volumenes/redis-data \
@@ -61,6 +64,11 @@ fix_volumes() {
   if [ -f "./notebooks/sensores_demo.ipynb" ] && [ ! -f "./volumenes/jupyterlab/sensores_demo.ipynb" ]; then
     cp ./notebooks/sensores_demo.ipynb ./volumenes/jupyterlab/
     chmod 666 ./volumenes/jupyterlab/sensores_demo.ipynb
+    echo -e "${GREEN}📘 Notebook de ejemplo copiado.${RESET}"
+  fi
+  if [ -f "./notebooks/payments_gold_analysis.ipynb" ] && [ ! -f "./volumenes/jupyterlab/payments_gold_analysis.ipynb" ]; then
+    cp ./notebooks/payments_gold_analysis.ipynb ./volumenes/jupyterlab/
+    chmod 666 ./volumenes/jupyterlab/payments_gold_analysis.ipynb
     echo -e "${GREEN}📘 Notebook de ejemplo copiado.${RESET}"
   fi
 
