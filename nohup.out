@@ -1,0 +1,420 @@
+[33m⚙️  Cargando variables desde .env...[0m
+[36m[1m🚀 Iniciando entorno Big Data (modo LOCAL, sin ngrok)...[0m
+[33m🧬 Generando SQL de inicialización desde template...[0m
+[32m✅ SQL generado correctamente: /home/carlos/Documentos/docker-compose-contenedores/bigdata/init-sql/00-init-all.sql[0m
+[33m🧩 Verificando estructura de volúmenes locales...[0m
+[33m🔧 Ajustando permisos en carpetas de trabajo...[0m
+[32m✅ Permisos aplicados correctamente a carpetas de usuario.[0m
+[33m⚠️  Carpetas protegidas (MariaDB y MinIO) no fueron modificadas para evitar errores.[0m
+[32m✅ Volúmenes y archivos base verificados.[0m
+ Image bigdata-jupyterlab Building 
+ Image bigdata-airflow-worker Building 
+ Image bigdata-spark-worker-2 Building 
+ Image bigdata-airflow-scheduler Building 
+ Image bigdata-airflow-webserver Building 
+ Image bigdata-spark-master Building 
+ Image bigdata-spark-history Building 
+ Image bigdata-spark-worker-1 Building 
+ Image bigdata-superset Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 6.69kB done
+#1 DONE 0.0s
+
+#2 [airflow-webserver internal] load build definition from Dockerfile.airflow
+#2 transferring dockerfile: 3.52kB done
+#2 DONE 0.1s
+
+#3 [spark-worker-1 internal] load build definition from Dockerfile.spark
+#3 transferring dockerfile: 2.68kB done
+#3 DONE 0.1s
+
+#4 [jupyterlab internal] load build definition from Dockerfile.jupyterlab
+#4 transferring dockerfile: 2.99kB done
+#4 DONE 0.1s
+
+#5 [spark-worker-2 internal] load metadata for docker.io/apache/spark:3.5.0
+#5 ...
+
+#6 [superset internal] load build definition from Dockerfile.superset
+#6 transferring dockerfile: 1.29kB done
+#6 DONE 0.1s
+
+#5 [spark-master internal] load metadata for docker.io/apache/spark:3.5.0
+#5 DONE 1.2s
+
+#7 [spark-worker-2 internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 [spark-history 1/6] FROM docker.io/apache/spark:3.5.0@sha256:0ed5154e6b32ac3af1272d4d65e9f65b13afcfe80b41ad10bd059bcd6317863c
+#8 resolve docker.io/apache/spark:3.5.0@sha256:0ed5154e6b32ac3af1272d4d65e9f65b13afcfe80b41ad10bd059bcd6317863c 0.0s done
+#8 resolve docker.io/apache/spark:3.5.0@sha256:0ed5154e6b32ac3af1272d4d65e9f65b13afcfe80b41ad10bd059bcd6317863c 0.0s done
+#8 DONE 0.1s
+
+#9 [spark-master 2/6] RUN apt-get update &&     apt-get install -y wget curl bash &&     rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [spark-master 3/6] RUN pip3 install --no-cache-dir     python-dotenv     kafka-python     boto3     pyarrow     pandas
+#10 CACHED
+
+#11 [spark-master 4/6] RUN chmod 777 /tmp
+#11 CACHED
+
+#12 [spark-master 5/6] RUN mkdir -p /opt/spark/conf /opt/spark/app /tmp/spark-events &&     chmod -R 777 /tmp/spark-events &&     echo "spark.eventLog.enabled=true" >> /opt/spark/conf/spark-defaults.conf &&     echo "spark.eventLog.dir=/tmp/spark-events" >> /opt/spark/conf/spark-defaults.conf &&     echo "spark.history.fs.logDirectory=/tmp/spark-events" >> /opt/spark/conf/spark-defaults.conf &&     echo "spark.history.ui.port=18080" >> /opt/spark/conf/spark-defaults.conf
+#12 CACHED
+
+#13 [spark-worker-2 6/6] RUN echo "📥 Descargando JDBC desde:  https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar" &&     curl -fL -o /opt/spark/jars/mariadb-java-client.jar "https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar"
+#13 CACHED
+
+#14 [superset internal] load metadata for docker.io/apache/superset:3.0.2
+#14 DONE 1.4s
+
+#15 [spark-history] exporting to image
+#15 exporting layers done
+#15 exporting manifest sha256:7de673dbbaa41f7a0b9470e633cfa04b9411101c69c7fe1d02f6ee96c3935b0f 0.0s done
+#15 exporting config sha256:e73341e7e2e478ced2171aa516e2d9bbbafc2da72d5945155a49e5b96eb2b76f
+#15 ...
+
+#7 [airflow-webserver internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#16 [superset internal] load build context
+#16 DONE 0.0s
+
+#17 [airflow-worker internal] load metadata for docker.io/apache/airflow:2.10.0
+#17 DONE 1.5s
+
+#18 [airflow-webserver internal] load build context
+#18 DONE 0.0s
+
+#15 [spark-history] exporting to image
+#15 exporting config sha256:e73341e7e2e478ced2171aa516e2d9bbbafc2da72d5945155a49e5b96eb2b76f 0.0s done
+#15 ...
+
+#19 [jupyterlab internal] load metadata for docker.io/jupyter/pyspark-notebook:spark-3.5.0
+#19 DONE 1.7s
+
+#15 [spark-history] exporting to image
+#15 exporting attestation manifest sha256:24365d68df42de52f165a20dfaff8b1591b20759f2830b9db0393f0cbe2a3935
+#15 ...
+
+#7 [jupyterlab internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#20 [jupyterlab internal] load build context
+#20 DONE 0.0s
+
+#21 [superset 1/5] FROM docker.io/apache/superset:3.0.2@sha256:fc97ce91f3e7f2d96f7c523eb5469d9cea354e6050af6cfb4e1d809c0c9895a8
+#21 resolve docker.io/apache/superset:3.0.2@sha256:fc97ce91f3e7f2d96f7c523eb5469d9cea354e6050af6cfb4e1d809c0c9895a8 0.3s done
+#21 DONE 0.3s
+
+#16 [superset internal] load build context
+#16 transferring context: 739B done
+#16 DONE 0.0s
+
+#22 [airflow-scheduler  1/11] FROM docker.io/apache/airflow:2.10.0@sha256:0bdad079614ecd800397966c8584a72ff568407554c81b7728560cee368cc637
+#22 resolve docker.io/apache/airflow:2.10.0@sha256:0bdad079614ecd800397966c8584a72ff568407554c81b7728560cee368cc637 0.4s done
+#22 DONE 0.4s
+
+#23 [superset 4/5] RUN chmod +x /wait-for-db.sh
+#23 CACHED
+
+#24 [superset 2/5] RUN apt-get update &&     apt-get install -y --no-install-recommends netcat-openbsd mariadb-client &&     pip install --no-cache-dir pymysql &&     rm -rf /var/lib/apt/lists/*
+#24 CACHED
+
+#25 [superset 3/5] COPY wait-for-db.sh /wait-for-db.sh
+#25 CACHED
+
+#26 [superset 5/5] RUN mkdir -p /app/superset_home
+#26 CACHED
+
+#18 [airflow-worker internal] load build context
+#18 transferring context: 4.87kB done
+#18 DONE 0.0s
+
+#27 [airflow-webserver  3/11] RUN echo "Carlitos"
+#27 CACHED
+
+#28 [airflow-webserver  8/11] COPY entrypoint-airflow.sh /entrypoint-airflow.sh
+#28 CACHED
+
+#29 [airflow-webserver  2/11] RUN apt-get update &&     apt-get install -y --no-install-recommends       openjdk-17-jdk-headless       curl       netcat-openbsd       mariadb-client &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#29 CACHED
+
+#30 [airflow-webserver  5/11] RUN bash -lc "pip install --no-cache-dir       pyspark==3.5.0       pandas       minio       requests       apache-airflow==2.10.0       apache-airflow-providers-apache-spark       apache-airflow-providers-mysql       apache-airflow-providers-redis       python-dotenv"
+#30 CACHED
+
+#31 [airflow-webserver  7/11] RUN echo '#!/bin/bash\nset -e\nif [ -f /requirements.txt ]; then\n  echo "📦 Instalando dependencias adicionales desde /requirements.txt ..."\n  pip install --no-cache-dir -r /requirements.txt || echo "⚠️  Algunas dependencias fallaron, continuando..."\nelse\n  echo "ℹ️  No se encontró /requirements.txt, continuando sin dependencias adicionales."\nfi' > /install-extra.sh && chmod +x /install-extra.sh
+#31 CACHED
+
+#32 [airflow-webserver 10/11] RUN groupadd -for -g 984 docker && usermod -aG docker airflow
+#32 CACHED
+
+#33 [airflow-webserver  4/11] RUN mkdir -p /opt/spark/jars &&     curl -fL -o /opt/spark/jars/mariadb-java-client.jar "https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar"
+#33 CACHED
+
+#34 [airflow-webserver  9/11] RUN chmod +x /entrypoint-airflow.sh
+#34 CACHED
+
+#35 [airflow-webserver  6/11] RUN mkdir -p /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins &&     chmod -R 777 /opt/airflow
+#35 CACHED
+
+#36 [airflow-worker 11/11] WORKDIR /opt/airflow
+#36 CACHED
+
+#37 [superset] exporting to image
+#37 exporting layers 0.0s done
+#37 exporting manifest sha256:abf4446a6f006fe85125374248a2a0da6660244daa4aca4c3279985e6018622b
+#37 ...
+
+#38 [spark-master] exporting to image
+#38 exporting layers done
+#38 exporting manifest sha256:51e2424910e51b92309a39d94784e2362e4bc289e6691da3192c0cd6cb3ac3e1 0.0s done
+#38 exporting config sha256:bbc6704cc75f1f2c51d2f7b5a5353fd2fbe2872df1ca987c08f398a140899864 0.0s done
+#38 exporting attestation manifest sha256:45e7ff6b67bf095ad345d7cdf7e6420205bac6983bb82e8a0906ba3eee712b4f 0.3s done
+#38 exporting manifest list sha256:05eb49327fd1aba5ebd3aaef2cb99249da4e24e8d472ce159de5ef25aef05131 0.1s done
+#38 naming to docker.io/library/bigdata-spark-master:latest 0.1s done
+#38 unpacking to docker.io/library/bigdata-spark-master:latest 0.1s done
+#38 DONE 0.7s
+
+#39 [jupyterlab 1/7] FROM docker.io/jupyter/pyspark-notebook:spark-3.5.0@sha256:58377aaa152b741e244f201679f96d909a024ea337088cc276b0ee32ab3f076f
+#39 resolve docker.io/jupyter/pyspark-notebook:spark-3.5.0@sha256:58377aaa152b741e244f201679f96d909a024ea337088cc276b0ee32ab3f076f 0.4s done
+#39 DONE 0.4s
+
+#40 [spark-worker-1] exporting to image
+#40 exporting layers done
+#40 exporting manifest sha256:b845c69e3f521b5a9e2e0144942a40041f2d35b64719d78156eaca711fc8f6db 0.0s done
+#40 exporting config sha256:741ad6f22b0fcf97494f290f3d3ef3d74a8ac1b95c1470eb0ea098d89b93da89 0.0s done
+#40 exporting attestation manifest sha256:adb0a25a1f426da02243bd24121ccf78e36cc806aa9f296ce3d1348562b6aa78 0.3s done
+#40 exporting manifest list sha256:45a278a2f174fc06737e1a4b4a365ea2e9aa9a223817fcd2f0261fa0b9c7e191 0.1s done
+#40 naming to docker.io/library/bigdata-spark-worker-1:latest 0.0s done
+#40 unpacking to docker.io/library/bigdata-spark-worker-1:latest 0.1s done
+#40 DONE 0.7s
+
+#41 [spark-worker-2] exporting to image
+#41 exporting layers done
+#41 exporting manifest sha256:91cb5c5c2c6787f93177ff2d13887b80e7b923767830de351cd174812b202d6c 0.0s done
+#41 exporting config sha256:851642fba57d3c65df7488f73c61773f89ba4dd60d4c5cb25ceffa893e85e1da 0.0s done
+#41 exporting attestation manifest sha256:58b61e02493520441489814df5386034edd8510ae825b8219ea47eb0d2fb11a8 0.3s done
+#41 exporting manifest list sha256:ecb81735e7d1c3c7d4e60cf004e12ec9ff9d90a6b12389b07dd3e203f23b61c9 0.1s done
+#41 naming to docker.io/library/bigdata-spark-worker-2:latest 0.0s done
+#41 unpacking to docker.io/library/bigdata-spark-worker-2:latest 0.1s done
+#41 DONE 0.7s
+
+#15 [spark-history] exporting to image
+#15 exporting attestation manifest sha256:24365d68df42de52f165a20dfaff8b1591b20759f2830b9db0393f0cbe2a3935 0.3s done
+#15 exporting manifest list sha256:b50f9aade6d4f91eb4159139c88b9862dccb911a258fb96914f413ade9ccc0cf 0.1s done
+#15 naming to docker.io/library/bigdata-spark-history:latest 0.0s done
+#15 unpacking to docker.io/library/bigdata-spark-history:latest 0.1s done
+#15 DONE 0.7s
+
+#20 [jupyterlab internal] load build context
+#20 transferring context: 80B done
+#20 DONE 0.0s
+
+#37 [superset] exporting to image
+#37 exporting manifest sha256:abf4446a6f006fe85125374248a2a0da6660244daa4aca4c3279985e6018622b 0.0s done
+#37 exporting config sha256:827d247525b1bcb8a6a50d708465b6b6df3e6c3a9d2511bfc134015d4094c604 0.1s done
+#37 ...
+
+#42 [jupyterlab 4/7] RUN mkdir -p /home/jovyan/work/shared &&     chown -R 1000:100 /home/jovyan &&     chmod -R 777 /home/jovyan &&     echo "jovyan ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+#42 CACHED
+
+#43 [jupyterlab 2/7] RUN apt-get update &&     apt-get install -y --no-install-recommends curl sudo &&     rm -rf /var/lib/apt/lists/*
+#43 CACHED
+
+#44 [jupyterlab 6/7] RUN pip install --no-cache-dir numpy==1.24.4 pandas==2.1.4
+#44 CACHED
+
+#45 [jupyterlab 3/7] RUN mkdir -p /opt/spark/jars &&     echo "📥 Descargando MariaDB JDBC desde: https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar" &&     curl -fL -o /opt/spark/jars/mariadb-java-client.jar "https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar" &&     echo "📥 Descargando MySQL JDBC desde: https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.4.0/mysql-connector-j-8.4.0.jar" &&     curl -fL -o /opt/spark/jars/mysql-connector-j.jar "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.4.0/mysql-connector-j-8.4.0.jar"
+#45 CACHED
+
+#46 [jupyterlab 5/7] COPY ./notebooks/sensores_demo.ipynb /home/jovyan/work/sensores_demo.ipynb
+#46 CACHED
+
+#47 [jupyterlab 7/7] WORKDIR /home/jovyan/work
+#47 CACHED
+
+#37 [superset] exporting to image
+#37 exporting attestation manifest sha256:07aafde39e8c36703c0690a49741c573e1b52e5322cd58fb3aa88f6f0fd70b5d
+#37 exporting attestation manifest sha256:07aafde39e8c36703c0690a49741c573e1b52e5322cd58fb3aa88f6f0fd70b5d 0.4s done
+#37 exporting manifest list sha256:02566d39b5ff3d973f48d8f9e54d1cb4306206f1191d2b34dfe304e599f17600 0.1s done
+#37 naming to docker.io/library/bigdata-superset:latest
+#37 naming to docker.io/library/bigdata-superset:latest 0.1s done
+#37 unpacking to docker.io/library/bigdata-superset:latest
+#37 unpacking to docker.io/library/bigdata-superset:latest 0.0s done
+#37 DONE 1.0s
+
+#48 [airflow-webserver] exporting to image
+#48 exporting layers done
+#48 exporting manifest sha256:c2bddd71d6557e4fe5f8679e80fd76f98cde760c45a2e8d8f61e73fa5919ad7b 0.1s done
+#48 exporting config sha256:524ba82c311cbf7a85ea1ce69e0b8eeaceca47e3ae1b48c9899d070ff65c40fe 0.1s done
+#48 exporting attestation manifest sha256:0f8325b5dbd823ffd7fc965ee60767d7f7c04229da86793f1e40f0059b7491ef 0.3s done
+#48 exporting manifest list sha256:dcf7323064162874dece2c652b6f5df2a1a4889134ac7e9b5d12feb60fbc9efd 0.1s done
+#48 naming to docker.io/library/bigdata-airflow-webserver:latest 0.0s done
+#48 unpacking to docker.io/library/bigdata-airflow-webserver:latest 0.0s done
+#48 DONE 1.0s
+
+#49 [airflow-scheduler] exporting to image
+#49 exporting layers done
+#49 exporting manifest sha256:0e78400fe5c1e9533ba14fdcf49366604f4f1e3676d1bec8301c18546e238955 0.0s done
+#49 exporting config sha256:4d395fc180ecb449913b4993b821a340249f60d5279e149ad658f9b7de6aafed 0.1s done
+#49 exporting attestation manifest sha256:e9cbed1e0839a2a4c258dc5d9d9e4a39eb9bb142227f465a625d70d2af28993f 0.3s done
+#49 exporting manifest list sha256:ecbf8bb8a5a57d595f9b197e013a46e9124b23fc3c66b4d67c813ade5f7c4253 0.2s done
+#49 naming to docker.io/library/bigdata-airflow-scheduler:latest 0.0s done
+#49 unpacking to docker.io/library/bigdata-airflow-scheduler:latest 0.0s done
+#49 DONE 1.0s
+
+#50 [airflow-worker] exporting to image
+#50 exporting layers done
+#50 exporting manifest sha256:20591476204fa8291011e1a258572b98ef0aa4c6555a55e68ad49942b84ccdc2 0.1s done
+#50 exporting config sha256:1d70b6f6fa75c97bc67f15ed02209fd80beb7671ae2c2421ee6f9882f469bb00 0.1s done
+#50 exporting attestation manifest sha256:4c45ac62205069d9e951a56a4072d656c6b700ac19d4a240c2734c750bbb8296 0.3s done
+#50 exporting manifest list sha256:4037172f717284a144233a9cf70e5a18edda908e38009d78fa07050518e0f42f 0.2s done
+#50 naming to docker.io/library/bigdata-airflow-worker:latest 0.0s done
+#50 unpacking to docker.io/library/bigdata-airflow-worker:latest 0.1s done
+#50 DONE 1.0s
+
+#51 [jupyterlab] exporting to image
+#51 exporting layers 0.0s done
+#51 exporting manifest sha256:44f7fc131a6a98d7a44f67c3e7054660d31348e26a13de6a3861b671a5963432 0.1s done
+#51 exporting config sha256:45f881df57c2fa3907fd210080d7091935b1ec8afbe6842542fba63a956b26ff 0.1s done
+#51 exporting attestation manifest sha256:93235a16c31aab49a3b9320b86134dfa68ec9f702eab8a38d6c418fef7e3bb86 0.3s done
+#51 exporting manifest list sha256:a3d1af1a9fcc13bbca91a4995997ad67d9cbd6944c34ab43ea834880d1a579b4
+#51 exporting manifest list sha256:a3d1af1a9fcc13bbca91a4995997ad67d9cbd6944c34ab43ea834880d1a579b4 0.1s done
+#51 naming to docker.io/library/bigdata-jupyterlab:latest 0.1s done
+#51 unpacking to docker.io/library/bigdata-jupyterlab:latest 0.1s done
+#51 DONE 0.9s
+
+#52 [spark-master] resolving provenance for metadata file
+#52 DONE 0.0s
+
+#53 [superset] resolving provenance for metadata file
+#53 DONE 0.0s
+
+#54 [spark-worker-1] resolving provenance for metadata file
+#54 DONE 0.0s
+
+#55 [spark-history] resolving provenance for metadata file
+#55 DONE 0.0s
+
+#56 [spark-worker-2] resolving provenance for metadata file
+#56 DONE 0.0s
+
+#57 [jupyterlab] resolving provenance for metadata file
+#57 DONE 0.0s
+
+#58 [airflow-webserver] resolving provenance for metadata file
+#58 DONE 0.0s
+
+#59 [airflow-scheduler] resolving provenance for metadata file
+#59 DONE 0.0s
+
+#60 [airflow-worker] resolving provenance for metadata file
+#60 DONE 0.0s
+ Image bigdata-spark-master Built 
+ Image bigdata-airflow-webserver Built 
+ Image bigdata-airflow-worker Built 
+ Image bigdata-superset Built 
+ Image bigdata-airflow-scheduler Built 
+ Image bigdata-spark-history Built 
+ Image bigdata-spark-worker-2 Built 
+ Image bigdata-spark-worker-1 Built 
+ Image bigdata-jupyterlab Built 
+ Container minio Running 
+ Container redis Running 
+ Container spark-master Recreate 
+ Container zookeeper Running 
+ Container jupyterlab Recreate 
+ Container mariadb Running 
+ Container airflow-flower Running 
+ Container spark-history Recreate 
+ Container kafka-broker Running 
+ Container adminer Running 
+ Container superset Recreate 
+ Container n8n Running 
+ Container jupyterlab Recreated 
+ Container spark-history Recreated 
+ Container superset Recreated 
+ Container spark-master Recreated 
+ Container airflow-webserver Recreate 
+ Container spark-worker-2 Recreate 
+ Container spark-worker-1 Recreate 
+ Container airflow-webserver Recreated 
+ Container airflow-worker Recreate 
+ Container airflow-scheduler Recreate 
+ Container airflow-scheduler Recreated 
+ Container airflow-worker Recreated 
+ Container spark-worker-2 Recreated 
+ Container spark-worker-1 Recreated 
+ Container jupyterlab Starting 
+ Container superset Starting 
+ Container minio Waiting 
+ Container spark-master Starting 
+ Container spark-history Starting 
+ Container superset Started 
+ Container jupyterlab Started 
+ Container spark-master Started 
+ Container spark-worker-2 Starting 
+ Container spark-worker-1 Starting 
+ Container airflow-webserver Starting 
+ Container spark-history Started 
+ Container minio Healthy 
+ Container minio-init Starting 
+ Container spark-worker-1 Started 
+ Container airflow-webserver Started 
+ Container airflow-worker Starting 
+ Container airflow-scheduler Starting 
+ Container spark-worker-2 Started 
+ Container minio-init Started 
+ Container airflow-scheduler Started 
+ Container airflow-worker Started 
+[33m⏳ Esperando MariaDB...[0m
+[32m✅ MariaDB está listo.[0m
+[33m🔍 Verificando conexión a MariaDB...[0m
+[32m✅ MariaDB responde correctamente.[0m
+[33m⏳ Esperando Kafka Broker...[0m
+[32m✅ Kafka Broker respondió correctamente.[0m
+[33m⏳ Esperando Spark Master...[0m
+[33m⌛ Intento 1/15 - esperando 5s...[0m
+[32m✅ Spark Master está listo (UI en puerto 8080).[0m
+[33m⏳ Esperando Superset...[0m
+[33m⌛ Intento 1/15 - esperando 5s...[0m
+[33m⌛ Intento 2/15 - esperando 5s...[0m
+[33m⌛ Intento 3/15 - esperando 5s...[0m
+[33m⌛ Intento 4/15 - esperando 5s...[0m
+[33m⌛ Intento 5/15 - esperando 5s...[0m
+[32m✅ Superset está listo.[0m
+[33m⏳ Esperando JupyterLab...[0m
+[32m✅ JupyterLab está listo.[0m
+[33m⏳ Esperando Airflow Webserver en http://localhost:8090/health ...[0m
+[32m✅ Airflow Webserver respondió.[0m
+[33m⏳ Esperando Flower UI...[0m
+[32m✅ Flower UI listo (health=healthy).[0m
+[33m⏳ Esperando interfaz de n8n en http://localhost:5678 ...[0m
+[32m✅ n8n respondió correctamente en http://localhost:5678.[0m
+[33m🧠 Verificando inicialización de base Airflow...[0m
+[32m✅ Base de datos Airflow ya inicializada.[0m
+[33m🔗 Creando conexión 'spark_default' en Airflow (si no existe)...[0m
+[32m✅ Conexión 'spark_default' ya existe.[0m
+
+[36m[1m🔑 OAuth (n8n) – Pegá en Google Cloud:[0m
+   • Authorized redirect URIs:        [32mhttp://localhost:5678/rest/oauth2-credential/callback[0m
+   • Authorized JavaScript origins:   [32mhttp://localhost:5678[0m
+
+
+[32m✅ Todos los servicios Big Data (modo LOCAL) están listos y verificados.[0m
+
+[36m[1m🌐 SERVICIOS BIG DATA (MODO LOCAL):[0m
+➡️  [1mMariaDB (Adminer):[0m [32mhttp://localhost:8089[0m   [33m(user:bigdata_user / pass:bigdata_pass)[0m
+➡️  [1mMinIO Console:[0m  [32mhttp://localhost:9001[0m   [33m(user:admin / pass:admin123)[0m
+➡️  [1mKafka Broker:[0m   [32mlocalhost:9092[0m   [33m(bootstrap: kafka-broker:9092 desde contenedores)[0m
+➡️  [1mSpark Master:[0m   [32mhttp://localhost:8080[0m
+➡️  [1mSpark History:[0m  [32mhttp://localhost:18080[0m
+➡️  [1mAirflow Web:[0m    [32mhttp://localhost:8090[0m   [33m(user:admin / pass:admin)[0m
+➡️  [1mFlower UI:[0m      [32mhttp://localhost:5555[0m
+➡️  [1mSuperset:[0m       [32mhttp://localhost:8088[0m   [33m(user:admin / pass:admin123)[0m
+➡️  [1mJupyterLab:[0m     [32mhttp://localhost:8888[0m   [33m(token:admin123)[0m
+➡️  [1mn8n (local, sin ngrok):[0m [32mhttp://localhost:5678[0m   [33m(user:admin / pass:admin)[0m
