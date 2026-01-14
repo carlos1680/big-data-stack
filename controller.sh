@@ -578,7 +578,7 @@ clean() {
 # 💣 LIMPIEZA TOTAL
 # ====
 full_clean() {
-  echo -e "${RED}${BOLD}⚠️  ESTA ACCIÓN ELIMINA TODO:${RESET}"
+  echo -e "${RED}${BOLD}⚠️  ESTA ACCIÓN ELIMINA TODOS LOS CONTENEDORES, VOLUMENES E IMAGENES DE DOCKER (PROPIOS Y EXTERNOS)!!!!:${RESET}"
   echo -e "   - Contenedores, volúmenes e imágenes locales"
   echo -e "   - Carpeta ./volumenes"
   read -r -p "¿Continuar? (escribe 'SI' para confirmar): " confirm

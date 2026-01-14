@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <style>
+      :root{
+        --bg:#ffffff;
+        --stroke:#2e2e2e;
+        --muted:#5b5b5b;
+        --ui:#f3f3f3;
+        --uiStroke:#cfcfcf;
+        --greenBg:#eaf6ea;
+        --greenStroke:#7dbb7d;
+        --purpleBg:#efe9fb;
+        --purpleStroke:#9a86d9;
+        --dataBg:#fff6df;
+        --dataStroke:#e1c77a;
+        --box:#ffffff;
+        --shadow:rgba(0,0,0,.08);
+        --orangeStroke:#d9822b;
+        --orangeBg:#fff3e6;
+        --kafkaBg:#f6e7ea;
+        --kafkaStroke:#d96a7a;
+        --tealBg:#e6f7f7;
+        --tealStroke:#3aa3a3;
+      }
+      .bg{fill:var(--bg);}
+      .title{font:800 34px system-ui,-apple-system,Segoe UI,Roboto,Arial; fill:#111;}
+      .subtitle{font:500 16px system-ui,-apple-system,Segoe UI,Roboto,Arial; fill:#333;}
+      .layerTitle{font:700 14px system-ui,-apple-system,Segoe UI,Roboto,Arial; fill:#333;}
+      .box{fill:var(--box);stroke:var(--stroke);stroke-width:2;rx:14;ry:14; filter:url(#ds);} 
+      .small{font:600 16px system-ui,-apple-system,Segoe UI,Roboto,Arial; fill:#111;}
+      .desc{font:500 13px system-ui,-apple-system,Segoe UI,Roboto,Arial; fill:var(--muted);}
+      .panel{fill:var(--ui);stroke:var(--uiStroke);stroke-width:2;rx:18;ry:18;}
+      .panelGreen{fill:var(--greenBg);stroke:var(--greenStroke);stroke-width:2;rx:18;ry:18;}
+      .panelPurple{fill:var(--purpleBg);stroke:var(--purpleStroke);stroke-width:2;rx:18;ry:18;}
+      .panelData{fill:var(--dataBg);stroke:var(--dataStroke);stroke-width:2;rx:18;ry:18;}
+      .boxOrange{fill:var(--orangeBg);stroke:var(--orangeStroke);stroke-width:3;rx:14;ry:14; filter:url(#ds);} 
+      .boxKafka{fill:var(--kafkaBg);stroke:var(--kafkaStroke);stroke-width:3;rx:14;ry:14; filter:url(#ds);} 
+      .boxTeal{fill:var(--tealBg);stroke:var(--tealStroke);stroke-width:3;rx:14;ry:14; filter:url(#ds);} 
+      .arrow{stroke:#444;stroke-width:2.2;fill:none;marker-end:url(#mEnd);}
+      .cap{stroke-linecap:round;stroke-linejoin:round;}
+    </style>
+
+    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="var(--shadow)"/>
+    </filter>
+
+    <marker id="mEnd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1000"/>
+
+  <!-- Title -->
+  <text class="title" x="520" y="70">Arquitectura general - BIGDATASTACK</text>
+  <text class="subtitle" x="560" y="98">Visión de alto nivel de servicios y flujos principales</text>
+
+  <!-- User -->
+  <rect class="boxTeal" x="60" y="200" width="210" height="140"/>
+  <text class="small" x="125" y="255">Usuario</text>
+  <text class="desc" x="100" y="285">Navegador web</text>
+
+  <!-- Main container -->
+  <rect class="panel" x="320" y="150" width="1220" height="760"/>
+
+  <!-- UI layer -->
+  <text class="layerTitle" x="360" y="195">Capa de acceso (UIs)</text>
+  <rect class="panel" x="340" y="205" width="1180" height="160"/>
+
+  <rect class="box" x="390" y="235" width="240" height="100"/>
+  <text class="small" x="460" y="275">Superset</text>
+  <text class="desc" x="440" y="300">Dashboards BI</text>
+
+  <rect class="box" x="660" y="235" width="240" height="100"/>
+  <text class="small" x="725" y="275">JupyterLab</text>
+  <text class="desc" x="725" y="300">Notebooks</text>
+
+  <rect class="box" x="930" y="235" width="240" height="100"/>
+  <text class="small" x="995" y="275">Airflow Web</text>
+  <text class="desc" x="995" y="300">Orquestación</text>
+
+  <rect class="box" x="1200" y="235" width="240" height="100"/>
+  <text class="small" x="1295" y="275">n8n</text>
+  <text class="desc" x="1240" y="300">Automatización / OAuth</text>
+
+  <!-- Orchestration/processing layer -->
+  <text class="layerTitle" x="360" y="425">Capa de orquestación / procesado</text>
+  <rect class="panelGreen" x="340" y="435" width="1180" height="210"/>
+
+  <rect class="box" x="390" y="475" width="270" height="130"/>
+  <text class="small" x="470" y="525">Airflow</text>
+  <text class="desc" x="440" y="555">DAGs / Scheduler</text>
+
+  <rect class="box" x="700" y="475" width="270" height="130"/>
+  <text class="small" x="795" y="525">Flower</text>
+  <text class="desc" x="760" y="555">Monitoreo Celery</text>
+
+  <rect class="panelPurple" x="1010" y="465" width="420" height="150"/>
+  <text class="small" x="1155" y="495">Spark Cluster</text>
+  <text class="desc" x="1120" y="520">Master + Workers + History</text>
+  <rect class="box" x="1040" y="535" width="120" height="60"/>
+  <text class="desc" x="1075" y="570">Master</text>
+  <rect class="box" x="1180" y="535" width="140" height="60"/>
+  <text class="desc" x="1220" y="570">Worker(s)</text>
+  <rect class="box" x="1340" y="535" width="120" height="60"/>
+  <text class="desc" x="1370" y="570">History</text>
+
+  <!-- Adminer -->
+  <rect class="box" x="1460" y="500" width="160" height="100"/>
+  <text class="small" x="1500" y="545">Adminer</text>
+  <text class="desc" x="1485" y="570">Gestión MariaDB</text>
+
+  <!-- Data layer -->
+  <text class="layerTitle" x="360" y="715">Capa de datos</text>
+  <rect class="panelData" x="340" y="725" width="1180" height="175"/>
+
+  <rect class="boxOrange" x="390" y="760" width="260" height="110"/>
+  <text class="small" x="470" y="805">MariaDB</text>
+  <text class="desc" x="445" y="832">Base transaccional</text>
+
+  <rect class="boxOrange" x="690" y="760" width="260" height="110"/>
+  <text class="small" x="790" y="805">MinIO</text>
+  <text class="desc" x="770" y="832">Datalake S3</text>
+
+  <rect class="boxOrange" x="990" y="760" width="230" height="110"/>
+  <text class="small" x="1075" y="805">Redis</text>
+  <text class="desc" x="1040" y="832">Broker Celery</text>
+
+  <!-- Kafka + Zookeeper group -->
+  <rect class="panelPurple" x="1240" y="745" width="260" height="140"/>
+  <rect class="boxKafka" x="1255" y="770" width="230" height="95"/>
+  <text class="small" x="1338" y="805">Kafka</text>
+  <text class="desc" x="1280" y="832">Streaming / Event Bus</text>
+  <rect class="box" x="1410" y="730" width="140" height="55"/>
+  <text class="desc" x="1435" y="763">Zookeeper</text>
+
+  <!-- Shared volume -->
+  <rect class="panel" x="390" y="895" width="1110" height="40"/>
+  <text class="desc" x="520" y="920">volúmenes/shared (DAGs, scripts, spark-events, datos compartidos)</text>
+
+  <!-- Arrows (approximate to original) -->
+  <path class="arrow cap" d="M 270 260 C 310 260 340 265 390 285" />
+
+  <!-- UIs to services -->
+  <path class="arrow cap" d="M 510 335 C 520 390 520 430 525 475" />
+  <path class="arrow cap" d="M 780 335 C 780 390 780 430 820 475" />
+  <path class="arrow cap" d="M 1050 335 C 1050 390 1050 430 1160 475" />
+  <path class="arrow cap" d="M 1320 335 C 1320 395 1280 430 1220 475" />
+
+  <!-- Orchestration to data -->
+  <path class="arrow cap" d="M 525 605 C 515 690 505 725 520 760" />
+  <path class="arrow cap" d="M 525 605 C 620 700 720 730 820 760" />
+  <path class="arrow cap" d="M 835 605 C 900 700 990 725 1105 760" />
+
+  <!-- Spark to data/kafka -->
+  <path class="arrow cap" d="M 1220 615 C 1240 680 1290 720 1365 770" />
+  <path class="arrow cap" d="M 1180 615 C 1100 690 970 730 820 760" />
+
+  <!-- n8n to kafka / data -->
+  <path class="arrow cap" d="M 1320 335 C 1400 500 1420 650 1365 770" />
+
+  <!-- Adminer to MariaDB -->
+  <path class="arrow cap" d="M 1500 600 C 1460 690 1000 740 650 805" />
+</svg>

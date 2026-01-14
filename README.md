@@ -1,83 +1,135 @@
-# Big Data Stack (Docker Compose) — MariaDB + Spark + Airflow + Superset + Jupyter + MinIO + n8n + Kafka
+# BIGDATASTACK — Big Data Stack local con Docker Compose
 
-Repositorio **demo/portfolio** para levantar un entorno Big Data “end-to-end” en **un solo `docker compose`**.
-La idea es poder practicar (y mostrar) ingestión, procesamiento distribuido, orquestación y BI, sin depender de cloud.
+Repositorio **demo/portfolio** para levantar un entorno Big Data **end-to-end** en un único `docker compose`, con foco en prácticas reales: **ingesta → procesamiento → orquestación → almacenamiento → BI/analytics → automatización**.
 
-## 🚀 ¿Qué incluye?
-
+Incluye:
 - **MariaDB** (fuente de datos + DBs de Airflow/Superset)
-- **Adminer** (UI para DB)
 - **MinIO** (S3-compatible / datalake)
-- **Apache Kafka** (+ **Zookeeper**) (streaming / event bus)
+- **Apache Kafka + Zookeeper** (streaming / event bus)
 - **Apache Spark** (master + 2 workers + history server)
-- **JupyterLab** (conectado a Spark)
-- **Apache Superset** (BI / dashboards)
 - **Apache Airflow** (CeleryExecutor + Redis) + **Flower**
-- **n8n** (automatización/workflows)
+- **Apache Superset** (BI / dashboards)
+- **JupyterLab** (notebooks conectados a Spark)
+- **Adminer** (UI para MariaDB)
+- **n8n** (automatización / webhooks + opción OAuth vía ngrok)
 
-> ✅ Nota: el archivo real `.env` **NO se sube** (está en `.gitignore`). Se usa **`.env.template`** como plantilla.
+> Importante: **no subas `.env` al repo**. Usá **`.env.template`** como plantilla.
 
----
+## Tabla de contenidos
 
-## ✅ Requisitos
+- [Arquitectura](#arquitectura)
+- [Requisitos](#requisitos)
+- [Quick start](#quick-start)
+- [Comandos (controller.sh)](#comandos-controllersh)
+- [URLs de servicios (modo local)](#urls-de-servicios-modo-local)
+- [Flujos y ejemplos](#flujos-y-ejemplos)
+- [Persistencia y volúmenes](#persistencia-y-volúmenes)
+- [Modo público (ngrok + n8n)](#modo-público-ngrok--n8n)
+- [Troubleshooting](#troubleshooting)
+- [Seguridad / buenas prácticas](#seguridad--buenas-prácticas)
+
+## Arquitectura
+
+### Vista general
+
+- Diagrama (alto nivel): [`docs/diagrama_arquitectura_bigdatastack_altonivel.svg`](docs/diagrama_arquitectura_bigdatastack_altonivel.svg)
+
+![Arquitectura - Alto nivel ](docs/diagrama_arquitectura_bigdatastack_altonivel.svg)
+
+### Servicios
+
+- Arquitectura general - BIGDATASTACK: [`docs/diagrama_arquitectura_bigdatastack.svg`](docs/diagrama_arquitectura_bigdatastack.svg)
+
+![Arquitectura - Servicios ](docs/diagrama_arquitectura_bigdatastack.svg)
+
+### Flujo típico Airflow → Spark → MariaDB/MinIO → Superset/Jupyter
+
+- Diagrama: [`docs/diagrama_flujo_dag_airflow_spark.svg`](docs/diagrama_flujo_dag_airflow_spark.svg)
+
+![Flujo DAG Airflow + Spark](docs/diagrama_flujo_dag_airflow_spark.svg)
+
+### OAuth n8n + ngrok + Gmail (referencia)
+
+- Diagrama: [`docs/diagrama_oauth_n8n_ngrok_gmail.svg`](docs/diagrama_oauth_n8n_ngrok_gmail.svg)
+
+![OAuth n8n + ngrok + Gmail](docs/diagrama_oauth_n8n_ngrok_gmail.svg)
+
+## Requisitos
 
 - Docker Engine + Docker Compose plugin
-- Ngrok, si quiere usar N8N publico
-- Nodejs 
-- 8 GB RAM mínimo (ideal 16 GB si vas a correr Spark + Superset + Airflow juntos)
-- Puertos libres: 3306, 8080-8082, 8088-8090, 8888, 9000-9001, 5555, 5678, **9092**, **2181**
+- Bash (Linux/macOS). En Windows: WSL recomendado.
+- **Node.js** (el `controller.sh` lo usa para chequear health de n8n)
+- (Opcional) **ngrok** si querés n8n público
+- RAM:
+  - mínimo: 8 GB
+  - recomendado: 16 GB (Spark + Superset + Airflow juntos)
 
----
+Puertos por defecto (podés cambiarlos en `.env`):
+- MariaDB: `3306`
+- Adminer: `8089`
+- Spark: `7077`, UIs `8080–8082`, History `18080`
+- Superset: `8088`
+- JupyterLab: `8888`
+- Airflow: `8090`
+- Flower: `5555`
+- MinIO: `9000` (API) / `9001` (console)
+- n8n: `5678`
+- Kafka/Zookeeper: `9092` / `2181`
 
-## 🏁 Quick start
+## Quick start
 
 ### 1) Crear tu `.env` desde la plantilla
+
 ```bash
 cp .env.template .env
 ```
 
-### 2) Generar claves (Superset / Airflow / n8n)
-Ejecutá estos comandos y pegá los valores en tu `.env`:
+### 2) Editar secrets (obligatorio)
 
-**Superset secret key** → `SUPERSET_SECRET_KEY`
+Abrí `.env` y completá los `CHANGEME_*` (por ejemplo):
+- `MARIADB_ROOT_PASSWORD`, `MARIADB_PASSWORD`
+- `SUPERSET_SECRET_KEY`, `SUPERSET_ADMIN_PASSWORD`
+- `JUPYTER_TOKEN`
+- `AIRFLOW_ADMIN_PASS`, `AIRFLOW__CORE__FERNET_KEY`, `AIRFLOW__WEBSERVER__SECRET_KEY`
+- `N8N_BASIC_AUTH_PASSWORD`, `N8N_ENCRYPTION_KEY`
+
+> Tip: si ya tenés un `.env` funcionando, mantené esas claves estables (especialmente Airflow/N8N), para evitar invalidar sesiones/credenciales.
+
+### 3) Permisos del controlador y arranque
+
 ```bash
-python - <<'PY'
-import secrets
-print(secrets.token_urlsafe(64))
-PY
+chmod +x controller.sh
+./controller.sh up
 ```
 
-**Airflow fernet key** → `AIRFLOW__CORE__FERNET_KEY`
+El controlador:
+- carga variables desde `.env`
+- crea estructura de `./volumenes/`
+- genera `init-sql/00-init-all.sql` desde template
+- levanta `docker compose`
+- espera healthchecks
+- inicializa DB de Airflow si hace falta
+- crea conexión `spark_default` en Airflow
+
+## Comandos (controller.sh)
+
+Uso:
+
 ```bash
-python - <<'PY'
-from cryptography.fernet import Fernet
-print(Fernet.generate_key().decode())
-PY
+./controller.sh {up [--debug-build]|up-public|down|status|clean|full-clean}
 ```
 
-**Airflow webserver secret / n8n encryption key** → `AIRFLOW__WEBSERVER__SECRET_KEY` y `N8N_ENCRYPTION_KEY`
-```bash
-python - <<'PY'
-import secrets
-print(secrets.token_urlsafe(32))
-PY
-```
+- `./controller.sh` o `./controller.sh up`: modo **LOCAL** (sin ngrok)
+- `./controller.sh up --debug-build`: rebuild con logs detallados (útil para debug)
+- `./controller.sh up-public`: modo **PÚBLICO** (ngrok + URLs externas para n8n)
+- `./controller.sh down`: baja contenedores
+- `./controller.sh status`: estado
+- `./controller.sh clean`: limpia logs Airflow y eventos Spark
+- `./controller.sh full-clean`: **BORRA TODOS LOS EXISTENTES - NO IMPORTA SI SON DE ESTA INFRA O NO, CUIDADO!!!!** (contenedores/volúmenes/imágenes + `./volumenes`) — pide confirmación
 
-> Si te falta `cryptography` para generar el fernet key:
-> ```bash
-> python -m pip install cryptography
-> ```
+## URLs de servicios (modo local)
 
-### 3) Administrar el stack
-#### ./controller.sh help ####
-⚙️  Cargando variables desde .env...
-Uso: 
-- ./controller.sh {up [--debug-build]|up-public|down|status|clean|full-clean}
-- (sin parámetro)  -> Big Data + n8n LOCAL (sin ngrok, http://localhost)
-- up               -> igual que sin parámetro (modo local)
-- up --debug-build -> (LOCAL) rebuild con logs completos de build (RUN echo, etc.) + log en ./volumenes/controller-- - - up-public        -> Big Data + n8n PÚBLICO (ngrok + HTTPS)
-
-## 🌐 URLs (local)
+> Estas URLs asumen puertos por defecto y el stack corriendo en tu máquina.
 
 | Servicio | URL |
 |---|---|
@@ -94,69 +146,114 @@ Uso:
 | Flower | http://localhost:5555 |
 | n8n | http://localhost:5678 |
 
-### Kafka / Zookeeper (nota)
-Kafka **no** expone una UI web por defecto (no es `http://localhost:9092/`).
-Se accede vía clientes Kafka:
+Kafka/Zookeeper (no tienen UI web por defecto):
+- desde host: `localhost:9092`, `localhost:2181`
+- desde contenedores: `kafka-broker:9092`, `zookeeper:2181`
 
-- **Desde el host:** `localhost:9092`
-- **Desde contenedores en la red:** `kafka-broker:9092`
-- **Zookeeper (si aplica):** `localhost:2181` (host) / `zookeeper:2181` (docker network)
+## Flujos y ejemplos
 
-> Credenciales: usá las del `.env` (por defecto el user suele ser `admin` y la pass la definís vos).
-
----
-
-## 🧪 Ejemplo rápido (para mostrar que funciona)
-
-### A) Cargar datos en MariaDB
-Este repo incluye scripts en `init-sql/`.
-Podés conectarte desde Adminer o desde tu host:
+### A) MariaDB (validar que responde)
 
 ```bash
-docker exec -it mariadb mysql -u${MARIADB_USER} -p${MARIADB_PASSWORD} ${MARIADB_DATABASE}
+docker exec -it mariadb mariadb -u"${MARIADB_USER}" -p"${MARIADB_PASSWORD}" -e "SELECT 1;"
 ```
 
-### B) Probar Kafka (crear topic + producir/consumir)
-Ejemplo simple usando el container de Kafka:
+### B) Kafka (crear topic + producir/consumir)
 
 Crear topic:
+
 ```bash
 docker exec -it kafka-broker bash -lc "kafka-topics --bootstrap-server kafka-broker:9092 --create --topic test_topic --partitions 1 --replication-factor 1"
 ```
 
-Producir mensajes:
+Producir:
+
 ```bash
 docker exec -it kafka-broker bash -lc "kafka-console-producer --bootstrap-server kafka-broker:9092 --topic test_topic"
 ```
 
-Consumir mensajes (en otra terminal):
+Consumir:
+
 ```bash
 docker exec -it kafka-broker bash -lc "kafka-console-consumer --bootstrap-server kafka-broker:9092 --topic test_topic --from-beginning"
 ```
 
-### C) Probar Spark desde Jupyter
-Abrí Jupyter y ejecutá el notebook de ejemplo:
-- `notebooks/sensores_demo.ipynb`
+### C) Spark desde JupyterLab
 
+- Abrí JupyterLab en http://localhost:8888
+- Usá el token definido en `.env`
+- Ejecutá el notebook de ejemplo (si existe):
+  - `notebooks/sensores_demo.ipynb`
 
----
+### D) Airflow (DAGs de ejemplo)
 
-## 🔒 Seguridad / buenas prácticas (importante)
+El `controller.sh` copia (si están presentes) plantillas de DAGs y scripts a la carpeta compartida:
+- `./volumenes/shared/dags_airflow/`
+- `./volumenes/shared/scripts_airflow/`
 
-- Nunca subas `.env` al repo.
-- No subas archivos OAuth / credenciales (`client_secret*.json`, `credentials*.json`, etc.).
-- Si alguna vez pegaste un secreto en Git por error: **rotalo** (cambiarlo) y reescribí historial si hace falta.
+DAGs copiados (según `controller.sh`):
+- `dag_test_mariadb.py`
+- `dag_mariadb_to_kafka.py`
+- `dag_kafka_to_minio.py`
+- `dag_kafka_to_csv.py`
+- `dag_spark_get_data_minio.py`
 
----
+> Además, el controlador crea/asegura la conexión `spark_default` apuntando a `spark://spark-master:7077`.
 
-## 📌 Sugerencia de `.gitignore` (extra)
-Si querés dejarlo más completo, podés agregar:
-- `.venv/`, `venv/`
-- `.pytest_cache/`, `.ruff_cache/`
-- `*.sqlite`, `*.db`
-- `*.parquet`, `*.csv` (si son datasets grandes o sensibles)
+## Persistencia y volúmenes
 
----
+Persistencia local bajo `./volumenes/`:
+- `volumenes/mariadb` → datos MariaDB
+- `volumenes/minio/data` → datos MinIO
+- `volumenes/superset` → home/config de Superset
+- `volumenes/jupyterlab` → notebooks y trabajo
+- `volumenes/airflow-logs`, `volumenes/airflow-plugins`
+- `volumenes/redis-data`
+- `volumenes/n8n-data`
+- `volumenes/shared/` → **carpeta compartida** (DAGs, scripts, eventos Spark, outputs)
 
-## 📄 Licencia
+> El stack usa volúmenes bind para facilitar inspección, versionado local y debugging.
+
+## Modo público (ngrok + n8n)
+
+El modo público está pensado para:
+- exponer n8n mediante **HTTPS público**
+- configurar OAuth (por ejemplo, Gmail) usando redirect URL pública
+
+Arranque:
+
+```bash
+./controller.sh up-public
+```
+
+El controlador:
+- inicia ngrok (si está instalado)
+- exporta para la sesión variables como `N8N_WEBHOOK_URL`, `N8N_HOST`, `N8N_PROTOCOL`, `N8N_PORT`
+- imprime en consola los valores que debés pegar en Google Cloud Console:
+  - **Authorized redirect URIs**: `https://<tu-dominio-ngrok>/rest/oauth2-credential/callback`
+  - **Authorized JavaScript origins**: `https://<tu-dominio-ngrok>`
+
+## Troubleshooting
+
+- **No levanta por falta de `.env`**: crealo desde `.env.template`.
+- **Puertos ocupados**: cambiá puertos en `.env` (por ejemplo `AIRFLOW_PORT`, `SUPERSET_PORT`, `JUPYTER_PORT`, `MINIO_PORT`).
+- **n8n no responde**: el controlador lo chequea con Node. Confirmá que `node` esté instalado.
+- **Airflow tarda**: esperá el init de DB; revisá logs:
+  - `docker logs -f airflow-webserver`
+  - `docker logs -f airflow-scheduler`
+  - `docker logs -f airflow-worker`
+- **Spark UI ok pero jobs fallan**: revisá driver/executor memory en `.env` y los logs de Spark.
+- **Kafka no listo**: el controlador intenta listar topics; revisá `docker logs -f kafka-broker`.
+
+## Seguridad / buenas prácticas
+
+- **No commitear** `.env`.
+- Rotar secrets si se filtraron (Superset/Airflow/n8n).
+- En `up-public`: usá Basic Auth fuerte en n8n y preferí dominios/URLs estables.
+- Si publicás el repo, evitá subir:
+  - `client_secret*.json`, `credentials*.json`, tokens OAuth
+  - dumps con datos reales
+
+## Licencia
+
 MIT.
