@@ -50,9 +50,9 @@ Incluye:
 
 ### OAuth n8n + ngrok + Gmail (referencia)
 
-- Diagrama: [`docs/diagrama_oauth_n8n_ngrok_gmail.svg`](docs/diagrama_oauth_n8n_ngrok_gmail.svg)
+- Diagrama: [`docs/diagrama_n8n_ngrok_gmail.svg`](docs/diagrama_n8n_ngrok_gmail.svg)
 
-![OAuth n8n + ngrok + Gmail](docs/diagrama_oauth_n8n_ngrok_gmail.svg)
+![N8n + ngrok + Gmail](docs/diagrama_n8n_ngrok_gmail.svg)
 
 ## Requisitos
 
