@@ -36,7 +36,7 @@ Incluye:
 
 ![Arquitectura - Alto nivel ](docs/diagrama_arquitectura_bigdatastack_altonivel.svg)
 
-### Servicios
+### Servicios y componentes
 
 - Arquitectura general - BIGDATASTACK: [`docs/diagrama_arquitectura_bigdatastack.svg`](docs/diagrama_arquitectura_bigdatastack.svg)
 
