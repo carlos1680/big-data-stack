@@ -521,6 +521,29 @@ services:
     networks:
       bigdata_net:
         ipv4_address: ${KAFKA_BROKER_IP}
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: mlflow_server
+    restart: unless-stopped
+    ports:
+      - "${MLFLOW_PORT}:5000"
+    environment:
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+      - MLFLOW_S3_ENDPOINT_URL=${MLFLOW_S3_ENDPOINT_URL}
+    command: >
+      mlflow server 
+        --backend-store-uri mysql+pymysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
+        --default-artifact-root s3://${MINIO_BUCKET}/mlflow-artifacts/
+        --host 0.0.0.0
+    depends_on:
+      - mariadb
+      - minio
+    networks:
+      bigdata_net:
+        ipv4_address: ${MLFLOW_IP}
 
 
 

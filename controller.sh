@@ -498,6 +498,7 @@ start_services_local() {
   echo -e "➡️  ${BOLD}Superset:${RESET}       ${GREEN}http://localhost:${SUPERSET_PORT}${RESET}   ${YELLOW}(user:${SUPERSET_ADMIN_USER} / pass:${SUPERSET_ADMIN_PASSWORD})${RESET}"
   echo -e "➡️  ${BOLD}JupyterLab:${RESET}     ${GREEN}http://localhost:${JUPYTER_PORT}${RESET}   ${YELLOW}(token:${JUPYTER_TOKEN})${RESET}"
   echo -e "➡️  ${BOLD}n8n (local, sin ngrok):${RESET} ${GREEN}${local_webhook}${RESET}   ${YELLOW}(user:${N8N_BASIC_AUTH_USER} / pass:${N8N_BASIC_AUTH_PASSWORD})${RESET}"
+  echo -e "➡️  ${BOLD}MLFlow:${RESET}     ${GREEN}http://localhost:${MLFLOW_PORT}${RESET}${RESET}"
 }
 
 # ====
@@ -545,6 +546,7 @@ start_services_public() {
   echo -e "➡️  ${BOLD}Superset:${RESET}       ${GREEN}http://localhost:${SUPERSET_PORT}${RESET}   ${YELLOW}(user:${SUPERSET_ADMIN_USER} / pass:${SUPERSET_ADMIN_PASSWORD})${RESET}"
   echo -e "➡️  ${BOLD}JupyterLab:${RESET}     ${GREEN}http://localhost:${JUPYTER_PORT}${RESET}   ${YELLOW}(token:${JUPYTER_TOKEN})${RESET}"
   echo -e "➡️  ${BOLD}n8n (local):${RESET}     ${GREEN}http://localhost:${N8N_PORT}${RESET}   ${YELLOW}(user:${N8N_BASIC_AUTH_USER} / pass:${N8N_BASIC_AUTH_PASSWORD})${RESET}"
+  echo -e "➡️  ${BOLD}MLFlow:${RESET}     ${GREEN}http://localhost:${MLFLOW_PORT}${RESET}${RESET}"
 }
 
 # ====

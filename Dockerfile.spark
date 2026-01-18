@@ -36,7 +36,10 @@ RUN pip3 install --no-cache-dir \
     kafka-python \
     boto3 \
     pyarrow \
-    pandas
+    pandas \ 
+    yfinance==0.2.40 \
+    lxml \
+    html5lib
 
 # Aseguramos que el usuario spark (UID 185) pueda usar /tmp (para wget/curl)
 RUN chmod 777 /tmp
