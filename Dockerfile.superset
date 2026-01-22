@@ -1,38 +1,25 @@
-# ==========================
-# Dockerfile para Apache Superset con MariaDB
-# ==========================
-ARG SUPERSET_VERSION=3.0.2
+ARG SUPERSET_VERSION
 FROM apache/superset:${SUPERSET_VERSION}
 
 USER root
 
-# Instalar netcat, cliente MariaDB y drivers de conexión
-#RUN apt-get update && \
-#    apt-get install -y --no-install-recommends netcat-openbsd mariadb-client && \
-#    pip install --no-cache-dir mysqlclient PyMySQL mysql-connector-python && \
-#    rm -rf /var/lib/apt/lists/*
+# Dependencias de sistema para MariaDB
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    netcat-openbsd \
+    mariadb-client \
+    default-libmysqlclient-dev \
+    build-essential \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends netcat-openbsd mariadb-client && \
-    pip install --no-cache-dir pymysql && \
-    rm -rf /var/lib/apt/lists/*
+# Instalación usando el gestor uv (más rápido y preciso en la v5.0.0)
+# Si uv falla en el build, usa: pip install --no-cache-dir mysqlclient pymysql
+RUN uv pip install --no-cache-dir mysqlclient pymysql
 
-# Copiar script de espera personalizado
 COPY wait-for-db.sh /wait-for-db.sh
-RUN chmod +x /wait-for-db.sh
-
-# Crear base de trabajo
-RUN mkdir -p /app/superset_home
+RUN chmod +x /wait-for-db.sh && \
+    mkdir -p /app/superset_home && \
+    chown -R superset:superset /app/superset_home
 
 USER superset
-
-ENTRYPOINT ["/bin/bash", "-c", "\
-  echo '🔧 Verificando permisos en /app/superset_home ...'; \
-  if [ ! -w /app/superset_home ]; then \
-    echo '⚙️  Reparando permisos (requiere root temporal)...'; \
-    sudo chown -R superset:superset /app/superset_home || true; \
-  fi; \
-  mkdir -p /app/superset_home/logs && chmod -R 777 /app/superset_home/logs; \
-  echo '✅ Carpeta de logs lista'; \
-  /wait-for-db.sh \
-"]
+ENTRYPOINT ["/bin/bash", "-c", "/wait-for-db.sh"]

@@ -56,6 +56,15 @@ CREATE DATABASE IF NOT EXISTS ${AIRFLOW_DB_NAME}
 
 GRANT ALL PRIVILEGES ON ${AIRFLOW_DB_NAME}.* TO '${MARIADB_USER}'@'%';
 
+-- ==========================
+-- BASE DE DATOS: MLFLOW
+-- ==========================
+CREATE DATABASE IF NOT EXISTS ${MLFLOW_DB_NAME}
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+GRANT ALL PRIVILEGES ON ${MLFLOW_DB_NAME}.* TO '${MARIADB_USER}'@'%';
+
 FLUSH PRIVILEGES;
 
 -- ==========================

@@ -1,90 +1,38 @@
-# ==========================
-# Airflow extendido con PySpark, MariaDB JDBC y soporte CeleryExecutor
-# ==========================
-ARG AIRFLOW_VERSION=2.10.0
-
+ARG AIRFLOW_VERSION
 FROM apache/airflow:${AIRFLOW_VERSION}
 
-ARG AIRFLOW_VERSION_LIB=2.10.0
-ARG PYSPARK_VERSION_LIB=3.5.0
-ARG MARIADB_JDBC_URL_LIB="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar"
+ARG AIRFLOW_VERSION_LIB
+ARG PYSPARK_VERSION_LIB
+ARG MARIADB_JDBC_URL_LIB
 
 USER root
+ENV AIRFLOW_VERSION_LIB=${AIRFLOW_VERSION_LIB} \
+    PYSPARK_VERSION_LIB=${PYSPARK_VERSION_LIB} \
+    MARIADB_JDBC_URL_LIB=${MARIADB_JDBC_URL_LIB} \
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    SPARK_HOME=/opt/spark
+ENV PATH=$JAVA_HOME/bin:$SPARK_HOME/bin:$PATH
 
-ENV AIRFLOW_VERSION_LIB=${AIRFLOW_VERSION_LIB}
-ENV PYSPARK_VERSION_LIB=${PYSPARK_VERSION_LIB}
-ENV MARIADB_JDBC_URL_LIB=${MARIADB_JDBC_URL_LIB}
-# -----------------------------------------------------------
-# 1️⃣ Dependencias del sistema (Java, mariadb-client, netcat)
-# -----------------------------------------------------------
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      openjdk-17-jdk-headless \
-      curl \
-      netcat-openbsd \
-      mariadb-client && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk-headless curl netcat-openbsd mariadb-client && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# -----------------------------------------------------------
-# 2️⃣ Variables de entorno para Java y Spark
-# -----------------------------------------------------------
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH=$JAVA_HOME/bin:$PATH
-ENV SPARK_HOME=/opt/spark
-ENV PATH=$SPARK_HOME/bin:$PATH
-
-# -----------------------------------------------------------
-# 3️⃣ Descargar el driver JDBC de MariaDB (para SparkSubmitOperator)
-# -----------------------------------------------------------
-RUN echo "Carlitos"
 RUN mkdir -p /opt/spark/jars && \
     curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL_LIB}"
 
-# -----------------------------------------------------------
-# 4️⃣ Instalar dependencias de Python (Airflow + Spark + MinIO)
-# -----------------------------------------------------------
 USER airflow
-RUN bash -lc "pip install --no-cache-dir \
-      pyspark==${PYSPARK_VERSION_LIB} \
-      pandas \
-      minio \
-      requests \
-      apache-airflow==${AIRFLOW_VERSION_LIB} \
-      apache-airflow-providers-apache-spark \
-      apache-airflow-providers-mysql \
-      apache-airflow-providers-redis \
-      python-dotenv"
+RUN pip install --no-cache-dir \
+    pyspark==${PYSPARK_VERSION_LIB} pandas minio requests \
+    apache-airflow==${AIRFLOW_VERSION_LIB} \
+    apache-airflow-providers-apache-spark \
+    apache-airflow-providers-mysql \
+    apache-airflow-providers-redis python-dotenv
 
 USER root
-
-# -----------------------------------------------------------
-# 5️⃣ Crear directorios estándar de Airflow
-# -----------------------------------------------------------
-RUN mkdir -p /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins && \
-    chmod -R 777 /opt/airflow
-
-# -----------------------------------------------------------
-# 6️⃣ Crear script opcional para dependencias adicionales
-# -----------------------------------------------------------
-RUN echo '#!/bin/bash\n\
-set -e\n\
-if [ -f /requirements.txt ]; then\n\
-  echo "📦 Instalando dependencias adicionales desde /requirements.txt ..."\n\
-  pip install --no-cache-dir -r /requirements.txt || echo "⚠️  Algunas dependencias fallaron, continuando..."\n\
-else\n\
-  echo "ℹ️  No se encontró /requirements.txt, continuando sin dependencias adicionales."\n\
-fi' > /install-extra.sh && chmod +x /install-extra.sh
-
-# -----------------------------------------------------------
-# 7️⃣ Entrypoint y permisos Docker
-# -----------------------------------------------------------
+RUN mkdir -p /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins && chmod -R 777 /opt/airflow
 COPY entrypoint-airflow.sh /entrypoint-airflow.sh
-RUN chmod +x /entrypoint-airflow.sh
-
-# 🔑 Permitir acceso al socket Docker dentro del contenedor
-RUN groupadd -for -g 984 docker && usermod -aG docker airflow
+RUN chmod +x /entrypoint-airflow.sh && groupadd -for -g 984 docker && usermod -aG docker airflow
 
 USER airflow
 WORKDIR /opt/airflow
 ENTRYPOINT ["/entrypoint-airflow.sh"]
-

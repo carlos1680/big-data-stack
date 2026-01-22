@@ -46,9 +46,13 @@ with DAG(
 
     run_spark_job = BashOperator(
         task_id="spark_job_mariadb",
-        bash_command=f"""            echo "🚀 Ejecutando test_mariadb.py dentro de {SPARK_CONTAINER_NAME}...";
+        bash_command=f"""            
+        echo "🚀 Ejecutando test_mariadb.py dentro de {SPARK_CONTAINER_NAME}...";
         {DOCKER_BIN} exec {SPARK_CONTAINER_NAME} {SPARK_SUBMIT_PATH} \
           --master {SPARK_MASTER_URL} \
+          --conf spark.eventLog.enabled=true \
+          --conf spark.eventLog.dir=file:///tmp/spark-events \
+          --conf "spark.jars.ivy=/tmp/.ivy2" \
           {SPARK_APP_PATH}
         """,
     )

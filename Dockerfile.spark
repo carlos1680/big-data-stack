@@ -1,82 +1,33 @@
-# ==========================
-# Dockerfile para Apache Spark con driver JDBC MariaDB
-# ==========================
-ARG SPARK_VERSION=3.5.0
-# ==========================
-# ARGUMENTOS DE BUILD
-# ==========================
-
+ARG SPARK_VERSION
 
 FROM apache/spark:${SPARK_VERSION}
 
-ARG MARIADB_JDBC_URL_LIB=https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar
-ARG MARIADB_JDBC_VERSION_LIB=3.3.3
+ARG MARIADB_JDBC_URL_LIB
 
-
-
-# ==========================
-# VARIABLES DE ENTORNO
-# ==========================
-ENV MARIADB_JDBC_URL_LIB=${MARIADB_JDBC_URL_LIB}
-ENV MARIADB_JDBC_VERSION_LIB=${MARIADB_JDBC_VERSION_LIB}
-
-# ==========================
-# DEPENDENCIAS Y UTILIDADES
-# ==========================
 USER root
 
-# Instalamos wget y curl para healthcheck y descargas JDBC
-RUN apt-get update && \
-    apt-get install -y wget curl bash && \
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget curl bash && \
     rm -rf /var/lib/apt/lists/*
 
-# Instalamos python-dotenv para leer archivos .env
-RUN pip3 install --no-cache-dir \
-    python-dotenv \
-    kafka-python \
-    boto3 \
-    pyarrow \
-    pandas \ 
-    yfinance==0.2.40 \
-    lxml \
-    html5lib
+# Instalar paquetes Python necesarios
+RUN pip3 install --no-cache-dir python-dotenv kafka-python boto3 pyarrow pandas yfinance lxml html5lib
 
-# Aseguramos que el usuario spark (UID 185) pueda usar /tmp (para wget/curl)
-RUN chmod 777 /tmp
+# Crear carpetas necesarias y ajustar permisos
+RUN chmod 777 /tmp && \
+    mkdir -p /opt/spark/conf /opt/spark/app /tmp/spark-events && \
+    chmod -R 777 /tmp/spark-events
 
-# ==========================
-# CONFIGURACIÓN DE SPARK
-# ==========================
-RUN mkdir -p /opt/spark/conf /opt/spark/app /tmp/spark-events && \
-    chmod -R 777 /tmp/spark-events && \
-    echo "spark.eventLog.enabled=true" >> /opt/spark/conf/spark-defaults.conf && \
-    echo "spark.eventLog.dir=/tmp/spark-events" >> /opt/spark/conf/spark-defaults.conf && \
-    echo "spark.history.fs.logDirectory=/tmp/spark-events" >> /opt/spark/conf/spark-defaults.conf && \
-    echo "spark.history.ui.port=18080" >> /opt/spark/conf/spark-defaults.conf
+# Descargar e instalar el driver JDBC de MariaDB
+RUN curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL_LIB}"
 
-# ==========================
-# DRIVER JDBC MARIADB
-# ==========================
 
-RUN echo "📥 Descargando JDBC desde:  ${MARIADB_JDBC_URL_LIB}" && \
-    curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL_LIB}"
 
-# ==========================
-# USUARIO FINAL Y PATH
-# ==========================
+# Volver al usuario seguro
 USER 185
+
+# Definir PATH y ENTRYPOINT
 ENV PATH="/opt/spark/bin:/opt/spark/sbin:${PATH}"
 
-# ==========================
-# ENTRYPOINT PRINCIPAL
-# ==========================
-ENTRYPOINT ["bash", "-lc", "\
-  set -euo pipefail; \
-  mkdir -p /opt/spark/logs /tmp/spark-events; \
-  case \"${SPARK_MODE:-master}\" in \
-    master)  export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-master.sh ;; \
-    worker)  export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-worker.sh ${SPARK_MASTER:?SPARK_MASTER no seteado} ;; \
-    history) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-history-server.sh ;; \
-    *) echo \"❌ SPARK_MODE desconocido: ${SPARK_MODE:-}\"; exit 1 ;; \
-  esac \
-"]
+ENTRYPOINT ["bash", "-lc", "set -euo pipefail; case \"${SPARK_MODE:-master}\" in master) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-master.sh ;; worker) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-worker.sh ${SPARK_MASTER} ;; history) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-history-server.sh ;; esac"]

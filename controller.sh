@@ -176,8 +176,8 @@ wait_for_http() {
 wait_for_service() {
   local container="$1"
   local message="$2"
-  local max_attempts=15
-  local sleep_time=5
+  local max_attempts=$3
+  local sleep_time=$4
 
   echo -e "${YELLOW}⏳ Esperando ${message}...${RESET}"
 
@@ -463,14 +463,14 @@ start_services_local() {
     COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d --build
   fi
 
-  wait_for_service mariadb "MariaDB"
+  wait_for_service mariadb "MariaDB" 15 5
   check_mariadb
 
   wait_for_kafka
 
-  wait_for_service spark-master "Spark Master"
-  wait_for_service superset "Superset"
-  wait_for_service jupyterlab "JupyterLab"
+  wait_for_service spark-master "Spark Master" 15 5
+  wait_for_service superset "Superset" 15 5 
+  wait_for_service jupyterlab "JupyterLab" 20 10
 
   local AIRFLOW_HTTP_PORT
   AIRFLOW_HTTP_PORT="${AIRFLOW_PORT:-8090}"
@@ -513,12 +513,12 @@ start_services_public() {
 
   COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d --build
 
-  wait_for_service mariadb "MariaDB"
+  wait_for_service mariadb "MariaDB" 15 5 
   check_mariadb
 
-  wait_for_service spark-master "Spark Master"
-  wait_for_service superset "Superset"
-  wait_for_service jupyterlab "JupyterLab"
+  wait_for_service spark-master "Spark Master" 15 5 
+  wait_for_service superset "Superset" 15 5
+  wait_for_service jupyterlab "JupyterLab" 15 5 
 
   local AIRFLOW_HTTP_PORT
   AIRFLOW_HTTP_PORT="${AIRFLOW_PORT:-8090}"
@@ -576,24 +576,72 @@ clean() {
   echo -e "${GREEN}✅ Limpieza parcial completada.${RESET}"
 }
 
+## ====
+## 💣 LIMPIEZA TOTAL
+## ====
+#full_clean() {
+#  echo -e "${RED}${BOLD}⚠️  ESTA ACCIÓN ELIMINA TODOS LOS CONTENEDORES, VOLUMENES E IMAGENES DE DOCKER (PROPIOS Y EXTERNOS)!!!!:${RESET}"
+#  echo -e "   - Contenedores, volúmenes e imágenes locales"
+#  echo -e "   - Carpeta ./volumenes"
+#  read -r -p "¿Continuar? (escribe 'SI' para confirmar): " confirm
+#  if [ "${confirm}" != "SI" ]; then
+#    echo -e "${YELLOW}❌ Cancelado.${RESET}"
+#    exit 0
+#  fi
+#  COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" down --remove-orphans || true
+#  docker volume prune --all --force || true
+#  docker rmi -f $(docker images -q) 2>/dev/null || true
+#  sudo rm -rf ./volumenes || true
+#  stop_ngrok_for_n8n
+#  echo -e "${GREEN}✅ Limpieza total completada.${RESET}"
+#}
+
 # ====
-# 💣 LIMPIEZA TOTAL
+# 💣 LIMPIEZA TOTAL (Selectiva por Proyecto)
 # ====
 full_clean() {
-  echo -e "${RED}${BOLD}⚠️  ESTA ACCIÓN ELIMINA TODOS LOS CONTENEDORES, VOLUMENES E IMAGENES DE DOCKER (PROPIOS Y EXTERNOS)!!!!:${RESET}"
-  echo -e "   - Contenedores, volúmenes e imágenes locales"
-  echo -e "   - Carpeta ./volumenes"
-  read -r -p "¿Continuar? (escribe 'SI' para confirmar): " confirm
+  echo -e "${RED}${BOLD}⚠️  ESTA ACCIÓN ELIMINA CONTENEDORES Y VOLÚMENES DEL PROYECTO!!!!:${RESET}"
+  echo -e "   - Contenedores del stack ${BIGDATA_PROJECT_NAME}"
+  echo -e "   - Volúmenes de Docker y carpeta local ./volumenes"
+  
+  read -r -p "¿Continuar con la eliminación de servicios y volúmenes? (escribe 'SI' para confirmar): " confirm
   if [ "${confirm}" != "SI" ]; then
     echo -e "${YELLOW}❌ Cancelado.${RESET}"
     exit 0
   fi
-  COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" down --remove-orphans || true
-  docker volume prune --all --force || true
-  docker rmi -f $(docker images -q) 2>/dev/null || true
+
+  # 1. Detener servicios y eliminar contenedores/volúmenes asociados al stack
+  echo -e "${YELLOW}🛑 Deteniendo servicios y eliminando volúmenes...${RESET}"
+  COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" down --volumes --remove-orphans || true
+  
+  # 2. Limpieza de carpeta física local
   sudo rm -rf ./volumenes || true
   stop_ngrok_for_n8n
-  echo -e "${GREEN}✅ Limpieza total completada.${RESET}"
+  echo -e "${GREEN}✅ Servicios y volúmenes eliminados.${RESET}"
+
+  # 3. Pregunta adicional para imágenes (SOLO las del compose)
+  echo -e ""
+  read -r -p "¿Deseas eliminar también las imágenes específicas de este stack? (escribe 'SI' para confirmar): " confirm_img
+  if [ "${confirm_img}" == "SI" ]; then
+    echo -e "${RED}🗑️  Eliminando imágenes del stack ${BIGDATA_PROJECT_NAME}...${RESET}"
+    
+    # Obtenemos solo los IDs de las imágenes definidas en el docker-compose.yml
+    local STACK_IMAGES
+    STACK_IMAGES=$(COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" images -q)
+    
+    if [ -n "${STACK_IMAGES}" ]; then
+      # Eliminamos las imágenes de forma selectiva
+      # shellcheck disable=SC2086
+      docker rmi ${STACK_IMAGES} 2>/dev/null || true
+      echo -e "${GREEN}✅ Imágenes del stack eliminadas.${RESET}"
+    else
+      echo -e "${YELLOW}ℹ️  No se encontraron imágenes para eliminar.${RESET}"
+    fi
+  else
+    echo -e "${YELLOW}ℹ️  Se conservaron las imágenes de Docker.${RESET}"
+  fi
+  
+  echo -e "${GREEN}✨ Proceso de limpieza finalizado.${RESET}"
 }
 
 # ====

@@ -50,8 +50,10 @@ with DAG(
             echo "🚀 Ejecutando spark_kafka_to_csv.py dentro de {SPARK_CONTAINER_NAME}...";
             {DOCKER_BIN} exec {SPARK_CONTAINER_NAME} {SPARK_SUBMIT_PATH} \
               --master {SPARK_MASTER_URL} \
+              --conf spark.eventLog.enabled=true \
+              --conf spark.eventLog.dir=file:///tmp/spark-events \
               --conf "spark.jars.ivy=/tmp/.ivy2" \
-              --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 \
+              --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.1.1 \
               {SPARK_APP_PATH}
         """,
     )

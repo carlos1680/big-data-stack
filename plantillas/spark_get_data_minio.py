@@ -1,66 +1,56 @@
+from pyspark.sql import SparkSession
 import os
-import io
-import boto3
-from botocore.client import Config
 
-PREFIX = os.getenv("MINIO_PREFIX", "raw/kafka/test_topic/")
-BUCKET = os.getenv("MINIO_BUCKET", "data")
+# Configuración desde variables de entorno (Consistente con script de carga)
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "http://minio:9000")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "admin")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "admin123")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET", "data")
+MINIO_PREFIX = os.getenv("MINIO_PREFIX", "raw/kafka/test_topic")
 
-s3 = boto3.client(
-    "s3",
-    endpoint_url=os.getenv("MINIO_ENDPOINT", "http://minio:9000"),
-    aws_access_key_id=os.getenv("MINIO_ACCESS_KEY", "admin"),
-    aws_secret_access_key=os.getenv("MINIO_SECRET_KEY", "admin123"),
-    config=Config(signature_version="s3v4"),
-    region_name=os.getenv("AWS_REGION", "us-east-1"),
+# Construcción de la ruta S3A
+input_path = f"s3a://{MINIO_BUCKET}/{MINIO_PREFIX}/"
+
+# Inicializar Spark con la misma configuración del script de escritura
+spark = (
+    SparkSession.builder
+    .appName("Get_Data_from_MinIO")
+    .config("spark.hadoop.fs.s3a.endpoint", MINIO_ENDPOINT)
+    .config("spark.hadoop.fs.s3a.access.key", MINIO_ACCESS_KEY)
+    .config("spark.hadoop.fs.s3a.secret.key", MINIO_SECRET_KEY)
+    .config("spark.hadoop.fs.s3a.path.style.access", "true")
+    .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+    .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider")
+    .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
+    .getOrCreate()
 )
 
 print("\n" + "=" * 90)
-print(f"📦 Listando objetos en bucket='{BUCKET}' prefix='{PREFIX}'")
+print(f"📥 Leyendo datos desde: {input_path}")
 print("=" * 90)
 
-resp = s3.list_objects_v2(Bucket=BUCKET, Prefix=PREFIX)
-contents = resp.get("Contents", [])
-if not contents:
-    print("⚠️  No se encontraron objetos con ese prefix.")
+try:
+    # Leer el dataset Parquet usando Spark nativo
+    df = spark.read.parquet(input_path)
+
+    # Mostrar Schema
+    print("\n🧱 Schema del Dataset:")
+    df.printSchema()
+
+    # Mostrar Preview (equivalente a tu PREVIEW_ROWS)
+    n_rows = int(os.getenv("PREVIEW_ROWS", "20"))
+    print(f"\n📊 Preview de las primeras {n_rows} filas:")
+    df.show(n_rows, truncate=False)
+
+    # Conteo total para verificación
+    total_count = df.count()
+    print(f"\n✅ Total de registros encontrados: {total_count}")
+
+except Exception as e:
+    print(f"❌ Error al leer los datos: {e}")
+    # En caso de que el prefijo no exista o esté vacío
+    print("Asegúrate de que la ruta existe y contiene archivos .parquet")
+
+finally:
     print("=" * 90 + "\n")
-    raise SystemExit(0)
-
-for obj in contents:
-    print(f"{obj['Key']}  {obj['Size']} bytes")
-
-print("=" * 90)
-
-# Buscar el primer parquet para previsualizar
-parquet_key = None
-for obj in contents:
-    if obj["Key"].endswith(".parquet"):
-        parquet_key = obj["Key"]
-        break
-
-if not parquet_key:
-    print("⚠️  No encontré archivos .parquet para mostrar contenido.")
-    print("=" * 90 + "\n")
-    raise SystemExit(0)
-
-print(f"📥 Descargando parquet para preview: {parquet_key}")
-
-obj = s3.get_object(Bucket=BUCKET, Key=parquet_key)
-data = obj["Body"].read()
-
-# Leer parquet
-import pyarrow.parquet as pq
-import pandas as pd
-
-table = pq.read_table(io.BytesIO(data))
-df = table.to_pandas()
-
-print("\n🧱 Schema (pandas dtypes):")
-print(df.dtypes)
-
-n = int(os.getenv("PREVIEW_ROWS", "20"))
-print(f"\n📊 Preview primeras {n} filas:")
-print(df.head(n).to_string(index=False))
-
-print("\n✅ OK")
-print("=" * 90 + "\n")
+    spark.stop()

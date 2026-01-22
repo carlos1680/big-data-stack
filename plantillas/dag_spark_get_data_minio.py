@@ -22,11 +22,12 @@ MINIO_PREFIX = os.getenv("MINIO_PREFIX", "raw/kafka/test_topic")
 KAFKA_BROKER_ADDR = os.getenv("KAFKA_BROKER_ADDR", "kafka-broker:9092")
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "test_topic")
 
-# Paquetes: Kafka + S3A (ajustamos versiones si tu imagen trae otro Hadoop)
+# Por esto (alineado al script que funciona):
 SPARK_PACKAGES = ",".join([
-    "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0",
-    "org.apache.hadoop:hadoop-aws:3.3.4",
-    "com.amazonaws:aws-java-sdk-bundle:1.12.262",
+    "org.apache.spark:spark-sql-kafka-0-10_2.13:4.1.1", # Scala 2.13 y Spark 4.1.1
+    "org.apache.hadoop:hadoop-aws:3.4.2",
+    "software.amazon.awssdk:bundle:2.23.19",
+    "org.wildfly.openssl:wildfly-openssl:1.1.3.Final"
 ])
 
 with DAG(
@@ -46,7 +47,6 @@ with DAG(
         """,
     )
 
-    # 2) Ejecutar el job Spark
     run_spark_job = BashOperator(
         task_id="run_spark_get_data_minio",
         bash_command=f"""
@@ -64,7 +64,9 @@ with DAG(
           {SPARK_CONTAINER_NAME} \
           {SPARK_SUBMIT_PATH} \
             --master '{SPARK_MASTER_URL}' \
-            --conf spark.jars.ivy=/tmp/.ivy2 \
+            --conf spark.eventLog.enabled=true \
+            --conf spark.eventLog.dir=file:///tmp/spark-events \
+            --conf "spark.jars.ivy=/tmp/.ivy2" \
             --packages '{SPARK_PACKAGES}' \
             '{SPARK_APP_PATH_MINIO}'
         """,
