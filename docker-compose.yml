@@ -605,7 +605,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./volumenes/shared/minio/data
+      device: ./volumenes/shared/minioshareddata
       o: bind
 
   n8n-data:

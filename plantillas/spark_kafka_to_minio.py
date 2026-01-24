@@ -9,7 +9,7 @@ KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "test_topic")
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "http://minio:9000")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "admin")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "admin123")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET", "data")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET", "buckets")
 output_path = f"s3a://{MINIO_BUCKET}/raw/kafka/{KAFKA_TOPIC}/"
 
 spark = (

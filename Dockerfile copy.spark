@@ -1,0 +1,33 @@
+ARG SPARK_VERSION
+
+FROM apache/spark:${SPARK_VERSION}
+
+ARG MARIADB_JDBC_URL_LIB
+
+USER root
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget curl bash && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instalar paquetes Python necesarios
+RUN pip3 install --no-cache-dir python-dotenv kafka-python boto3 pyarrow pandas yfinance lxml html5lib
+
+# Crear carpetas necesarias y ajustar permisos
+RUN chmod 777 /tmp && \
+    mkdir -p /opt/spark/conf /opt/spark/app /tmp/spark-events && \
+    chmod -R 777 /tmp/spark-events
+
+# Descargar e instalar el driver JDBC de MariaDB
+RUN curl -fL -o /opt/spark/jars/mariadb-java-client.jar "${MARIADB_JDBC_URL_LIB}"
+
+
+
+# Volver al usuario seguro
+USER 185
+
+# Definir PATH y ENTRYPOINT
+ENV PATH="/opt/spark/bin:/opt/spark/sbin:${PATH}"
+
+ENTRYPOINT ["bash", "-lc", "set -euo pipefail; case \"${SPARK_MODE:-master}\" in master) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-master.sh ;; worker) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-worker.sh ${SPARK_MASTER} ;; history) export SPARK_NO_DAEMONIZE=1; /opt/spark/sbin/start-history-server.sh ;; esac"]

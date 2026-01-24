@@ -43,16 +43,15 @@ fix_volumes() {
   echo -e "${YELLOW}🧩 Verificando estructura de volúmenes locales...${RESET}"
 
   mkdir -p volumenes/{superset,jupyterlab,shared,airflow-logs,airflow-plugins,redis-data,n8n-data}
-  mkdir -p volumenes/shared/{dags_airflow,scripts_airflow,spark-events,minio}
-  mkdir -p volumenes/shared/minio/data
+  mkdir -p volumenes/shared/{dags_airflow,scripts_airflow,spark-events,minioshareddata}
+  mkdir -p volumenes/shared/minioshareddata
 
   echo -e "${YELLOW}🔧 Ajustando permisos en carpetas de trabajo...${RESET}"
   chmod -R 777 \
     volumenes/superset \
     volumenes/jupyterlab \
     volumenes/shared \
-    volumenes/shared/minio \
-    volumenes/shared/minio/data \
+    volumenes/shared/minioshareddata \
     volumenes/airflow-logs \
     volumenes/airflow-plugins \
     volumenes/redis-data \

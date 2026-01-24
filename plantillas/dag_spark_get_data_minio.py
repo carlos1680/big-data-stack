@@ -16,7 +16,7 @@ SPARK_APP_PATH_MINIO = os.getenv("SPARK_APP_PATH_MINIO", "/opt/spark/app/spark_g
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "http://minio:9000")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "admin")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "admin123")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET", "data")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET", "buckets")
 MINIO_PREFIX = os.getenv("MINIO_PREFIX", "raw/kafka/test_topic")
 
 KAFKA_BROKER_ADDR = os.getenv("KAFKA_BROKER_ADDR", "kafka-broker:9092")
