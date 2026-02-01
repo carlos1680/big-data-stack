@@ -1,0 +1,31 @@
+# Usamos Python 3.10 Slim (Requerido por Binance/Modern Libs)
+FROM python:3.10-slim
+
+# 1. Variables de entorno para optimización
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# 2. INSTALAR COMPILADORES (CRÍTICO) 🛠️
+# pandas_ta, mplfinance y numpy requieren compilar C en la instalación.
+# Sin 'build-essential' y 'gcc', la instalación falla en imágenes slim.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    python3-dev \
+    libffi-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Instalar librerías de Python
+# Actualizamos pip primero
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir python-dotenv kafka-python boto3 pyarrow pandas numpy yfinance lxml html5lib requests alpaca-trade-api schedule mplfinance
+
+
+# 4. Copiamos el código fuente
+COPY . /app
+
+# Comando por defecto
+CMD ["python", "main.py"]

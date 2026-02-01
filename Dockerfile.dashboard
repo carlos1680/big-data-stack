@@ -1,0 +1,14 @@
+ARG TRADING_VERSION
+FROM python:${TRADING_VERSION}
+
+WORKDIR /app
+
+# Agregamos s3fs para conectar con MinIO
+RUN pip install streamlit pandas s3fs
+
+# Copiamos el código
+#COPY crypto-trading-mlops-platform/src/dashboard/trading_app.py /app/trading_app.py
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "trading_app.py", "--server.address=0.0.0.0"]

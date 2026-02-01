@@ -1,0 +1,1602 @@
+./
+├── client_secret_256746832166-85gnvi92g24kjd7715uh0aupvvdclnje.apps.googleusercontent.com.json
+├── controller copy.sh
+├── controller.sh
+├── docker-compose.yml
+├── Dockerfile copy.spark
+├── Dockerfile.airflow
+├── Dockerfile.dashboard
+├── Dockerfile.jupyter
+├── Dockerfile.mlflow
+├── Dockerfile.spark
+├── Dockerfile.superset
+├── docs
+│   ├── diagrama_arquitectura_bigdatastack_altonivel.svg
+│   ├── diagrama_arquitectura_bigdatastack.svg
+│   ├── diagrama_flujo_dag_airflow_spark.svg
+│   ├── diagrama_n8n_ngrok_gmail.svg
+│   ├── diagram_arquitectura_bigdatastack.png
+│   └── diagram_arquitectura_bigdatastack.svg
+├── entrypoint-airflow.sh
+├── estructura.txt
+├── init-sql
+│   ├── 00-init-all.sql
+│   └── 00-init-all.sql.template
+├── notebooks
+│   ├── payments_gold_analysis.ipynb
+│   └── sensores_demo.ipynb
+├── plantillas
+│   ├── dag_kafka_to_csv.py
+│   ├── dag_kafka_to_minio copy.py
+│   ├── dag_kafka_to_minio.py
+│   ├── dag_mariadb_to_kafka.py
+│   ├── dag_spark_get_data_minio.py
+│   ├── dag_spark_pi.py
+│   ├── dag_test_mariadb copy.py
+│   ├── dag_test_mariadb.py
+│   ├── script_spark_mariadb_to_kafka.py
+│   ├── spark_get_data_minio.py
+│   ├── spark_kafka_to_csv.py
+│   ├── spark_kafka_to_minio.py
+│   ├── test_mariadb copy.py
+│   ├── test_mariadb.py
+│   └── viejos
+│       ├── dag_spark_pi.py
+│       ├── dag_test_mariadb copy.py
+│       ├── dag_test_mariadb.py
+│       ├── test_mariadb copy.py
+│       └── test_mariadb.py
+├── README.md
+├── scripts
+│   └── test_mariadb.py
+├── search_tool.py
+├── sqlviejos
+│   ├── airflow.sql
+│   ├── init.sql
+│   └── superset-init.sql
+├── superset_config.py
+├── volumenes
+│   ├── airflow-logs
+│   │   ├── dag_id=dag_C03_inventario_inteligente_principal
+│   │   │   ├── run_id=manual__2026-01-24T23:09:55.045483+00:00
+│   │   │   │   ├── task_id=spark_entrenamiento_oro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_features_oro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_ingesta_bronce
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_limpieza_plata
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_simulacion_montecarlo
+│   │   │   │       └── attempt=1.log
+│   │   │   └── run_id=manual__2026-01-26T23:35:25.090196+00:00
+│   │   │       ├── task_id=spark_entrenamiento_oro
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_features_oro
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_ingesta_bronce
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_limpieza_plata
+│   │   │       │   └── attempt=1.log
+│   │   │       └── task_id=spark_simulacion_montecarlo
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_C04_trading_flujo_completo_v2
+│   │   │   ├── run_id=manual__2026-01-25T00:17:31.998877+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=1.log
+│   │   │   ├── run_id=manual__2026-01-25T00:37:07.170486+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       ├── attempt=1.log
+│   │   │   │       └── attempt=4.log
+│   │   │   ├── run_id=manual__2026-01-25T00:52:03.426690+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=2.log
+│   │   │   ├── run_id=manual__2026-01-26T23:27:48.791232+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=1.log
+│   │   │   ├── run_id=manual__2026-01-26T23:36:13.617020+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=1.log
+│   │   │   ├── run_id=manual__2026-01-26T23:42:17.638873+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=2.log
+│   │   │   ├── run_id=manual__2026-01-26T23:53:24.538675+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=1.log
+│   │   │   ├── run_id=manual__2026-01-27T00:20:01.335595+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       ├── attempt=1.log
+│   │   │   │       └── attempt=2.log
+│   │   │   ├── run_id=manual__2026-01-27T00:45:55.486331+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_process_silver
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_train_model
+│   │   │   │       ├── attempt=1.log
+│   │   │   │       └── attempt=2.log
+│   │   │   ├── run_id=manual__2026-01-27T00:57:23.722588+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_process_silver
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_train_model
+│   │   │   │       └── attempt=1.log
+│   │   │   ├── run_id=manual__2026-01-27T01:15:43.838133+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=1.log
+│   │   │   ├── run_id=manual__2026-01-27T01:33:21.957397+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   └── attempt=2.log
+│   │   │   │   └── task_id=spark_process_silver
+│   │   │   │       └── attempt=1.log
+│   │   │   └── run_id=manual__2026-01-27T01:49:41.387069+00:00
+│   │   │       ├── task_id=ingest_asia
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_crypto
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_macro
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_paises
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_sp500
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_feature_engineering_gold
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_process_silver
+│   │   │       │   └── attempt=1.log
+│   │   │       └── task_id=spark_train_model
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_C04_trading_flujo_hourly_v3
+│   │   │   ├── run_id=manual__2026-01-27T02:40:42.853422+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_process_silver
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_train_model
+│   │   │   │       └── attempt=1.log
+│   │   │   ├── run_id=manual__2026-01-27T02:56:24.674386+00:00
+│   │   │   │   ├── task_id=ingest_asia
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_crypto
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_macro
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_paises
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=ingest_sp500
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   ├── task_id=spark_backtest_model
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   ├── attempt=2.log
+│   │   │   │   │   ├── attempt=3.log
+│   │   │   │   │   ├── attempt=4.log
+│   │   │   │   │   ├── attempt=5.log
+│   │   │   │   │   └── attempt=6.log
+│   │   │   │   ├── task_id=spark_feature_engineering_gold
+│   │   │   │   │   ├── attempt=1.log
+│   │   │   │   │   ├── attempt=2.log
+│   │   │   │   │   ├── attempt=3.log
+│   │   │   │   │   ├── attempt=4.log
+│   │   │   │   │   ├── attempt=5.log
+│   │   │   │   │   └── attempt=6.log
+│   │   │   │   ├── task_id=spark_process_silver
+│   │   │   │   │   └── attempt=1.log
+│   │   │   │   └── task_id=spark_train_model
+│   │   │   │       ├── attempt=1.log
+│   │   │   │       ├── attempt=2.log
+│   │   │   │       ├── attempt=3.log
+│   │   │   │       ├── attempt=4.log
+│   │   │   │       ├── attempt=5.log
+│   │   │   │       └── attempt=6.log
+│   │   │   └── run_id=scheduled__2026-01-27T01:00:00+00:00
+│   │   │       ├── task_id=ingest_asia
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_crypto
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_macro
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_paises
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingest_sp500
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_backtest_model
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_feature_engineering_gold
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=spark_process_silver
+│   │   │       │   └── attempt=1.log
+│   │   │       └── task_id=spark_train_model
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_C04_trading_ingesta_hibrida_v2
+│   │   │   └── run_id=manual__2026-01-25T00:02:16.421249+00:00
+│   │   │       ├── task_id=ingesta_asia
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingesta_crypto
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingesta_macro
+│   │   │       │   └── attempt=1.log
+│   │   │       ├── task_id=ingesta_paises
+│   │   │       │   └── attempt=1.log
+│   │   │       └── task_id=ingesta_sp500
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_kafka_to_csv
+│   │   │   └── run_id=manual__2026-01-24T23:07:23.862713+00:00
+│   │   │       └── task_id=spark_kafka_to_csv
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_kafka_to_minio_v1
+│   │   │   └── run_id=manual__2026-01-24T23:07:58.037353+00:00
+│   │   │       └── task_id=spark_kafka_to_minio
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_mariadb_to_kafka
+│   │   │   └── run_id=manual__2026-01-24T23:06:36.274740+00:00
+│   │   │       └── task_id=spark_mariadb_to_kafka
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_score_and_write_mariadb_v1
+│   │   │   └── run_id=manual__2026-01-24T23:14:21.956235+00:00
+│   │   │       └── task_id=score_and_write
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_silver_to_gold_mariadb_v1
+│   │   │   └── run_id=manual__2026-01-24T23:12:30.803994+00:00
+│   │   │       └── task_id=silver_to_gold_and_mariadb
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_spark_get_data_minio
+│   │   │   └── run_id=manual__2026-01-24T23:08:40.361480+00:00
+│   │   │       ├── task_id=precheck_script_exists
+│   │   │       │   └── attempt=1.log
+│   │   │       └── task_id=run_spark_get_data_minio
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_test_mariadb
+│   │   │   └── run_id=manual__2026-01-24T23:06:13.128716+00:00
+│   │   │       └── task_id=spark_job_mariadb
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=dag_train_model_from_gold_v1
+│   │   │   └── run_id=manual__2026-01-24T23:13:05.074953+00:00
+│   │   │       └── task_id=train_fraud_model
+│   │   │           └── attempt=1.log
+│   │   ├── dag_id=payment_fraud_batch_pipeline_v1
+│   │   │   └── run_id=manual__2026-01-24T23:11:48.123326+00:00
+│   │   │       └── task_id=process_payments_batch
+│   │   │           └── attempt=1.log
+│   │   ├── dag_processor_manager
+│   │   │   └── dag_processor_manager.log
+│   │   ├── scheduler
+│   │   │   ├── 2026-01-24
+│   │   │   │   ├── dag_C03_flujo_principal.py.log
+│   │   │   │   ├── dag_kafka_to_csv.py.log
+│   │   │   │   ├── dag_kafka_to_minio.py.log
+│   │   │   │   ├── dag_mariadb_to_kafka.py.log
+│   │   │   │   ├── dag_score_and_write_mariadb.py.log
+│   │   │   │   ├── dag_silver_to_gold_mariadb.py.log
+│   │   │   │   ├── dag_spark_get_data_minio.py.log
+│   │   │   │   ├── dag_test_mariadb.py.log
+│   │   │   │   ├── dag_train_model_from_gold.py.log
+│   │   │   │   └── fraud_detection_dag.py.log
+│   │   │   ├── 2026-01-25
+│   │   │   │   ├── dag_C03_flujo_principal.py.log
+│   │   │   │   ├── dag_C04_flujo_principal_init.py.log
+│   │   │   │   ├── dag_kafka_to_csv.py.log
+│   │   │   │   ├── dag_kafka_to_minio.py.log
+│   │   │   │   ├── dag_mariadb_to_kafka.py.log
+│   │   │   │   ├── dag_score_and_write_mariadb.py.log
+│   │   │   │   ├── dag_silver_to_gold_mariadb.py.log
+│   │   │   │   ├── dag_spark_get_data_minio.py.log
+│   │   │   │   ├── dag_test_mariadb.py.log
+│   │   │   │   ├── dag_train_model_from_gold.py.log
+│   │   │   │   └── fraud_detection_dag.py.log
+│   │   │   ├── 2026-01-26
+│   │   │   │   ├── dag_C03_flujo_principal.py.log
+│   │   │   │   ├── dag_C04_flujo_principal_init.py.log
+│   │   │   │   ├── dag_kafka_to_csv.py.log
+│   │   │   │   ├── dag_kafka_to_minio.py.log
+│   │   │   │   ├── dag_mariadb_to_kafka.py.log
+│   │   │   │   ├── dag_score_and_write_mariadb.py.log
+│   │   │   │   ├── dag_silver_to_gold_mariadb.py.log
+│   │   │   │   ├── dag_spark_get_data_minio.py.log
+│   │   │   │   ├── dag_test_mariadb.py.log
+│   │   │   │   ├── dag_train_model_from_gold.py.log
+│   │   │   │   └── fraud_detection_dag.py.log
+│   │   │   ├── 2026-01-27
+│   │   │   │   ├── dag_C03_flujo_principal.py.log
+│   │   │   │   ├── dag_C04_flujo_principal_init.py.log
+│   │   │   │   ├── dag_kafka_to_csv.py.log
+│   │   │   │   ├── dag_kafka_to_minio.py.log
+│   │   │   │   ├── dag_mariadb_to_kafka.py.log
+│   │   │   │   ├── dag_score_and_write_mariadb.py.log
+│   │   │   │   ├── dag_silver_to_gold_mariadb.py.log
+│   │   │   │   ├── dag_spark_get_data_minio.py.log
+│   │   │   │   ├── dag_test_mariadb.py.log
+│   │   │   │   ├── dag_train_model_from_gold.py.log
+│   │   │   │   └── fraud_detection_dag.py.log
+│   │   │   └── latest -> 2026-01-27
+│   │   └── startup.log
+│   ├── airflow-plugins
+│   ├── jupyterlab
+│   │   ├── dags_airflow
+│   │   ├── miniodata
+│   │   ├── payments_gold_analysis.ipynb
+│   │   ├── scripts_airflow
+│   │   ├── sensores_demo.ipynb
+│   │   └── shared
+│   ├── mariadb
+│   │   ├── airflow_db
+│   │   │   ├── ab_permission.frm
+│   │   │   ├── ab_permission.ibd
+│   │   │   ├── ab_permission_view.frm
+│   │   │   ├── ab_permission_view.ibd
+│   │   │   ├── ab_permission_view_role.frm
+│   │   │   ├── ab_permission_view_role.ibd
+│   │   │   ├── ab_register_user.frm
+│   │   │   ├── ab_register_user.ibd
+│   │   │   ├── ab_role.frm
+│   │   │   ├── ab_role.ibd
+│   │   │   ├── ab_user.frm
+│   │   │   ├── ab_user.ibd
+│   │   │   ├── ab_user_role.frm
+│   │   │   ├── ab_user_role.ibd
+│   │   │   ├── ab_view_menu.frm
+│   │   │   ├── ab_view_menu.ibd
+│   │   │   ├── alembic_version.frm
+│   │   │   ├── alembic_version.ibd
+│   │   │   ├── callback_request.frm
+│   │   │   ├── callback_request.ibd
+│   │   │   ├── celery_taskmeta.frm
+│   │   │   ├── celery_taskmeta.ibd
+│   │   │   ├── celery_tasksetmeta.frm
+│   │   │   ├── celery_tasksetmeta.ibd
+│   │   │   ├── connection.frm
+│   │   │   ├── connection.ibd
+│   │   │   ├── dag_code.frm
+│   │   │   ├── dag_code.ibd
+│   │   │   ├── dag.frm
+│   │   │   ├── dag.ibd
+│   │   │   ├── dag_owner_attributes.frm
+│   │   │   ├── dag_owner_attributes.ibd
+│   │   │   ├── dag_pickle.frm
+│   │   │   ├── dag_pickle.ibd
+│   │   │   ├── dag_priority_parsing_request.frm
+│   │   │   ├── dag_priority_parsing_request.ibd
+│   │   │   ├── dagrun_dataset_event.frm
+│   │   │   ├── dagrun_dataset_event.ibd
+│   │   │   ├── dag_run.frm
+│   │   │   ├── dag_run.ibd
+│   │   │   ├── dag_run_note.frm
+│   │   │   ├── dag_run_note.ibd
+│   │   │   ├── dag_schedule_dataset_alias_reference.frm
+│   │   │   ├── dag_schedule_dataset_alias_reference.ibd
+│   │   │   ├── dag_schedule_dataset_reference.frm
+│   │   │   ├── dag_schedule_dataset_reference.ibd
+│   │   │   ├── dag_tag.frm
+│   │   │   ├── dag_tag.ibd
+│   │   │   ├── dag_warning.frm
+│   │   │   ├── dag_warning.ibd
+│   │   │   ├── dataset_alias_dataset_event.frm
+│   │   │   ├── dataset_alias_dataset_event.ibd
+│   │   │   ├── dataset_alias_dataset.frm
+│   │   │   ├── dataset_alias_dataset.ibd
+│   │   │   ├── dataset_alias.frm
+│   │   │   ├── dataset_alias.ibd
+│   │   │   ├── dataset_dag_run_queue.frm
+│   │   │   ├── dataset_dag_run_queue.ibd
+│   │   │   ├── dataset_event.frm
+│   │   │   ├── dataset_event.ibd
+│   │   │   ├── dataset.frm
+│   │   │   ├── dataset.ibd
+│   │   │   ├── db.opt
+│   │   │   ├── import_error.frm
+│   │   │   ├── import_error.ibd
+│   │   │   ├── job.frm
+│   │   │   ├── job.ibd
+│   │   │   ├── log.frm
+│   │   │   ├── log.ibd
+│   │   │   ├── log_template.frm
+│   │   │   ├── log_template.ibd
+│   │   │   ├── rendered_task_instance_fields.frm
+│   │   │   ├── rendered_task_instance_fields.ibd
+│   │   │   ├── serialized_dag.frm
+│   │   │   ├── serialized_dag.ibd
+│   │   │   ├── session.frm
+│   │   │   ├── session.ibd
+│   │   │   ├── sla_miss.frm
+│   │   │   ├── sla_miss.ibd
+│   │   │   ├── slot_pool.frm
+│   │   │   ├── slot_pool.ibd
+│   │   │   ├── task_fail.frm
+│   │   │   ├── task_fail.ibd
+│   │   │   ├── task_id_sequence.frm
+│   │   │   ├── task_id_sequence.ibd
+│   │   │   ├── task_instance.frm
+│   │   │   ├── task_instance_history.frm
+│   │   │   ├── task_instance_history.ibd
+│   │   │   ├── task_instance.ibd
+│   │   │   ├── task_instance_note.frm
+│   │   │   ├── task_instance_note.ibd
+│   │   │   ├── task_map.frm
+│   │   │   ├── task_map.ibd
+│   │   │   ├── task_outlet_dataset_reference.frm
+│   │   │   ├── task_outlet_dataset_reference.ibd
+│   │   │   ├── task_reschedule.frm
+│   │   │   ├── task_reschedule.ibd
+│   │   │   ├── taskset_id_sequence.frm
+│   │   │   ├── taskset_id_sequence.ibd
+│   │   │   ├── trigger.frm
+│   │   │   ├── trigger.ibd
+│   │   │   ├── variable.frm
+│   │   │   ├── variable.ibd
+│   │   │   ├── xcom.frm
+│   │   │   └── xcom.ibd
+│   │   ├── aria_log.00000001
+│   │   ├── aria_log_control
+│   │   ├── bigdata_db
+│   │   │   ├── db.opt
+│   │   │   ├── inventario_predicciones.frm
+│   │   │   ├── inventario_predicciones.ibd
+│   │   │   ├── payments_gold.frm
+│   │   │   ├── payments_gold.ibd
+│   │   │   ├── predictions.frm
+│   │   │   ├── predictions.ibd
+│   │   │   ├── sensores.frm
+│   │   │   └── sensores.ibd
+│   │   ├── ddl_recovery.log
+│   │   ├── ib_buffer_pool
+│   │   ├── ibdata1
+│   │   ├── ib_logfile0
+│   │   ├── ibtmp1
+│   │   ├── mariadb_upgrade_info
+│   │   ├── mlflow_db
+│   │   │   ├── alembic_version.frm
+│   │   │   ├── alembic_version.ibd
+│   │   │   ├── assessments.frm
+│   │   │   ├── assessments.ibd
+│   │   │   ├── datasets.frm
+│   │   │   ├── datasets.ibd
+│   │   │   ├── db.opt
+│   │   │   ├── endpoint_bindings.frm
+│   │   │   ├── endpoint_bindings.ibd
+│   │   │   ├── endpoint_model_mappings.frm
+│   │   │   ├── endpoint_model_mappings.ibd
+│   │   │   ├── endpoints.frm
+│   │   │   ├── endpoints.ibd
+│   │   │   ├── endpoint_tags.frm
+│   │   │   ├── endpoint_tags.ibd
+│   │   │   ├── entity_associations.frm
+│   │   │   ├── entity_associations.ibd
+│   │   │   ├── evaluation_dataset_records.frm
+│   │   │   ├── evaluation_dataset_records.ibd
+│   │   │   ├── evaluation_datasets.frm
+│   │   │   ├── evaluation_datasets.ibd
+│   │   │   ├── evaluation_dataset_tags.frm
+│   │   │   ├── evaluation_dataset_tags.ibd
+│   │   │   ├── experiments.frm
+│   │   │   ├── experiments.ibd
+│   │   │   ├── experiment_tags.frm
+│   │   │   ├── experiment_tags.ibd
+│   │   │   ├── inputs.frm
+│   │   │   ├── inputs.ibd
+│   │   │   ├── input_tags.frm
+│   │   │   ├── input_tags.ibd
+│   │   │   ├── jobs.frm
+│   │   │   ├── jobs.ibd
+│   │   │   ├── latest_metrics.frm
+│   │   │   ├── latest_metrics.ibd
+│   │   │   ├── logged_model_metrics.frm
+│   │   │   ├── logged_model_metrics.ibd
+│   │   │   ├── logged_model_params.frm
+│   │   │   ├── logged_model_params.ibd
+│   │   │   ├── logged_models.frm
+│   │   │   ├── logged_models.ibd
+│   │   │   ├── logged_model_tags.frm
+│   │   │   ├── logged_model_tags.ibd
+│   │   │   ├── metrics.frm
+│   │   │   ├── metrics.ibd
+│   │   │   ├── model_definitions.frm
+│   │   │   ├── model_definitions.ibd
+│   │   │   ├── model_versions.frm
+│   │   │   ├── model_versions.ibd
+│   │   │   ├── model_version_tags.frm
+│   │   │   ├── model_version_tags.ibd
+│   │   │   ├── online_scoring_configs.frm
+│   │   │   ├── online_scoring_configs.ibd
+│   │   │   ├── params.frm
+│   │   │   ├── params.ibd
+│   │   │   ├── prevent_secrets_aad_mutation.TRN
+│   │   │   ├── registered_model_aliases.frm
+│   │   │   ├── registered_model_aliases.ibd
+│   │   │   ├── registered_models.frm
+│   │   │   ├── registered_models.ibd
+│   │   │   ├── registered_model_tags.frm
+│   │   │   ├── registered_model_tags.ibd
+│   │   │   ├── runs.frm
+│   │   │   ├── runs.ibd
+│   │   │   ├── scorers.frm
+│   │   │   ├── scorers.ibd
+│   │   │   ├── scorer_versions.frm
+│   │   │   ├── scorer_versions.ibd
+│   │   │   ├── secrets.frm
+│   │   │   ├── secrets.ibd
+│   │   │   ├── secrets.TRG
+│   │   │   ├── spans.frm
+│   │   │   ├── spans.ibd
+│   │   │   ├── tags.frm
+│   │   │   ├── tags.ibd
+│   │   │   ├── trace_info.frm
+│   │   │   ├── trace_info.ibd
+│   │   │   ├── trace_metrics.frm
+│   │   │   ├── trace_metrics.ibd
+│   │   │   ├── trace_request_metadata.frm
+│   │   │   ├── trace_request_metadata.ibd
+│   │   │   ├── trace_tags.frm
+│   │   │   ├── trace_tags.ibd
+│   │   │   ├── webhook_events.frm
+│   │   │   ├── webhook_events.ibd
+│   │   │   ├── webhooks.frm
+│   │   │   └── webhooks.ibd
+│   │   ├── multi-master.info
+│   │   ├── mysql
+│   │   │   ├── columns_priv.frm
+│   │   │   ├── columns_priv.MAD
+│   │   │   ├── columns_priv.MAI
+│   │   │   ├── column_stats.frm
+│   │   │   ├── column_stats.MAD
+│   │   │   ├── column_stats.MAI
+│   │   │   ├── db.frm
+│   │   │   ├── db.MAD
+│   │   │   ├── db.MAI
+│   │   │   ├── db.opt
+│   │   │   ├── event.frm
+│   │   │   ├── event.MAD
+│   │   │   ├── event.MAI
+│   │   │   ├── func.frm
+│   │   │   ├── func.MAD
+│   │   │   ├── func.MAI
+│   │   │   ├── general_log.CSM
+│   │   │   ├── general_log.CSV
+│   │   │   ├── general_log.frm
+│   │   │   ├── global_priv.frm
+│   │   │   ├── global_priv.MAD
+│   │   │   ├── global_priv.MAI
+│   │   │   ├── gtid_slave_pos.frm
+│   │   │   ├── gtid_slave_pos.ibd
+│   │   │   ├── help_category.frm
+│   │   │   ├── help_category.MAD
+│   │   │   ├── help_category.MAI
+│   │   │   ├── help_keyword.frm
+│   │   │   ├── help_keyword.MAD
+│   │   │   ├── help_keyword.MAI
+│   │   │   ├── help_relation.frm
+│   │   │   ├── help_relation.MAD
+│   │   │   ├── help_relation.MAI
+│   │   │   ├── help_topic.frm
+│   │   │   ├── help_topic.MAD
+│   │   │   ├── help_topic.MAI
+│   │   │   ├── index_stats.frm
+│   │   │   ├── index_stats.MAD
+│   │   │   ├── index_stats.MAI
+│   │   │   ├── innodb_index_stats.frm
+│   │   │   ├── innodb_index_stats.ibd
+│   │   │   ├── innodb_table_stats.frm
+│   │   │   ├── innodb_table_stats.ibd
+│   │   │   ├── plugin.frm
+│   │   │   ├── plugin.MAD
+│   │   │   ├── plugin.MAI
+│   │   │   ├── proc.frm
+│   │   │   ├── proc.MAD
+│   │   │   ├── proc.MAI
+│   │   │   ├── procs_priv.frm
+│   │   │   ├── procs_priv.MAD
+│   │   │   ├── procs_priv.MAI
+│   │   │   ├── proxies_priv.frm
+│   │   │   ├── proxies_priv.MAD
+│   │   │   ├── proxies_priv.MAI
+│   │   │   ├── roles_mapping.frm
+│   │   │   ├── roles_mapping.MAD
+│   │   │   ├── roles_mapping.MAI
+│   │   │   ├── servers.frm
+│   │   │   ├── servers.MAD
+│   │   │   ├── servers.MAI
+│   │   │   ├── slow_log.CSM
+│   │   │   ├── slow_log.CSV
+│   │   │   ├── slow_log.frm
+│   │   │   ├── tables_priv.frm
+│   │   │   ├── tables_priv.MAD
+│   │   │   ├── tables_priv.MAI
+│   │   │   ├── table_stats.frm
+│   │   │   ├── table_stats.MAD
+│   │   │   ├── table_stats.MAI
+│   │   │   ├── time_zone.frm
+│   │   │   ├── time_zone_leap_second.frm
+│   │   │   ├── time_zone_leap_second.MAD
+│   │   │   ├── time_zone_leap_second.MAI
+│   │   │   ├── time_zone.MAD
+│   │   │   ├── time_zone.MAI
+│   │   │   ├── time_zone_name.frm
+│   │   │   ├── time_zone_name.MAD
+│   │   │   ├── time_zone_name.MAI
+│   │   │   ├── time_zone_transition.frm
+│   │   │   ├── time_zone_transition.MAD
+│   │   │   ├── time_zone_transition.MAI
+│   │   │   ├── time_zone_transition_type.frm
+│   │   │   ├── time_zone_transition_type.MAD
+│   │   │   ├── time_zone_transition_type.MAI
+│   │   │   ├── transaction_registry.frm
+│   │   │   ├── transaction_registry.ibd
+│   │   │   └── user.frm
+│   │   ├── performance_schema
+│   │   │   └── db.opt
+│   │   ├── superset_db
+│   │   │   └── db.opt
+│   │   ├── sys
+│   │   │   ├── db.opt
+│   │   │   ├── host_summary_by_file_io.frm
+│   │   │   ├── host_summary_by_file_io_type.frm
+│   │   │   ├── host_summary_by_stages.frm
+│   │   │   ├── host_summary_by_statement_latency.frm
+│   │   │   ├── host_summary_by_statement_type.frm
+│   │   │   ├── host_summary.frm
+│   │   │   ├── innodb_buffer_stats_by_schema.frm
+│   │   │   ├── innodb_buffer_stats_by_table.frm
+│   │   │   ├── innodb_lock_waits.frm
+│   │   │   ├── io_by_thread_by_latency.frm
+│   │   │   ├── io_global_by_file_by_bytes.frm
+│   │   │   ├── io_global_by_file_by_latency.frm
+│   │   │   ├── io_global_by_wait_by_bytes.frm
+│   │   │   ├── io_global_by_wait_by_latency.frm
+│   │   │   ├── latest_file_io.frm
+│   │   │   ├── memory_by_host_by_current_bytes.frm
+│   │   │   ├── memory_by_thread_by_current_bytes.frm
+│   │   │   ├── memory_by_user_by_current_bytes.frm
+│   │   │   ├── memory_global_by_current_bytes.frm
+│   │   │   ├── memory_global_total.frm
+│   │   │   ├── metrics.frm
+│   │   │   ├── privileges_by_table_by_level.frm
+│   │   │   ├── processlist.frm
+│   │   │   ├── ps_check_lost_instrumentation.frm
+│   │   │   ├── schema_auto_increment_columns.frm
+│   │   │   ├── schema_index_statistics.frm
+│   │   │   ├── schema_object_overview.frm
+│   │   │   ├── schema_redundant_indexes.frm
+│   │   │   ├── schema_table_lock_waits.frm
+│   │   │   ├── schema_table_statistics.frm
+│   │   │   ├── schema_table_statistics_with_buffer.frm
+│   │   │   ├── schema_tables_with_full_table_scans.frm
+│   │   │   ├── schema_unused_indexes.frm
+│   │   │   ├── session.frm
+│   │   │   ├── session_ssl_status.frm
+│   │   │   ├── statement_analysis.frm
+│   │   │   ├── statements_with_errors_or_warnings.frm
+│   │   │   ├── statements_with_full_table_scans.frm
+│   │   │   ├── statements_with_runtimes_in_95th_percentile.frm
+│   │   │   ├── statements_with_sorting.frm
+│   │   │   ├── statements_with_temp_tables.frm
+│   │   │   ├── sys_config.frm
+│   │   │   ├── sys_config.MAD
+│   │   │   ├── sys_config.MAI
+│   │   │   ├── user_summary_by_file_io.frm
+│   │   │   ├── user_summary_by_file_io_type.frm
+│   │   │   ├── user_summary_by_stages.frm
+│   │   │   ├── user_summary_by_statement_latency.frm
+│   │   │   ├── user_summary_by_statement_type.frm
+│   │   │   ├── user_summary.frm
+│   │   │   ├── version.frm
+│   │   │   ├── wait_classes_global_by_avg_latency.frm
+│   │   │   ├── wait_classes_global_by_latency.frm
+│   │   │   ├── waits_by_host_by_latency.frm
+│   │   │   ├── waits_by_user_by_latency.frm
+│   │   │   ├── waits_global_by_latency.frm
+│   │   │   ├── x@0024host_summary_by_file_io.frm
+│   │   │   ├── x@0024host_summary_by_file_io_type.frm
+│   │   │   ├── x@0024host_summary_by_stages.frm
+│   │   │   ├── x@0024host_summary_by_statement_latency.frm
+│   │   │   ├── x@0024host_summary_by_statement_type.frm
+│   │   │   ├── x@0024host_summary.frm
+│   │   │   ├── x@0024innodb_buffer_stats_by_schema.frm
+│   │   │   ├── x@0024innodb_buffer_stats_by_table.frm
+│   │   │   ├── x@0024innodb_lock_waits.frm
+│   │   │   ├── x@0024io_by_thread_by_latency.frm
+│   │   │   ├── x@0024io_global_by_file_by_bytes.frm
+│   │   │   ├── x@0024io_global_by_file_by_latency.frm
+│   │   │   ├── x@0024io_global_by_wait_by_bytes.frm
+│   │   │   ├── x@0024io_global_by_wait_by_latency.frm
+│   │   │   ├── x@0024latest_file_io.frm
+│   │   │   ├── x@0024memory_by_host_by_current_bytes.frm
+│   │   │   ├── x@0024memory_by_thread_by_current_bytes.frm
+│   │   │   ├── x@0024memory_by_user_by_current_bytes.frm
+│   │   │   ├── x@0024memory_global_by_current_bytes.frm
+│   │   │   ├── x@0024memory_global_total.frm
+│   │   │   ├── x@0024processlist.frm
+│   │   │   ├── x@0024ps_digest_95th_percentile_by_avg_us.frm
+│   │   │   ├── x@0024ps_digest_avg_latency_distribution.frm
+│   │   │   ├── x@0024ps_schema_table_statistics_io.frm
+│   │   │   ├── x@0024schema_flattened_keys.frm
+│   │   │   ├── x@0024schema_index_statistics.frm
+│   │   │   ├── x@0024schema_table_lock_waits.frm
+│   │   │   ├── x@0024schema_table_statistics.frm
+│   │   │   ├── x@0024schema_table_statistics_with_buffer.frm
+│   │   │   ├── x@0024schema_tables_with_full_table_scans.frm
+│   │   │   ├── x@0024session.frm
+│   │   │   ├── x@0024statement_analysis.frm
+│   │   │   ├── x@0024statements_with_errors_or_warnings.frm
+│   │   │   ├── x@0024statements_with_full_table_scans.frm
+│   │   │   ├── x@0024statements_with_runtimes_in_95th_percentile.frm
+│   │   │   ├── x@0024statements_with_sorting.frm
+│   │   │   ├── x@0024statements_with_temp_tables.frm
+│   │   │   ├── x@0024user_summary_by_file_io.frm
+│   │   │   ├── x@0024user_summary_by_file_io_type.frm
+│   │   │   ├── x@0024user_summary_by_stages.frm
+│   │   │   ├── x@0024user_summary_by_statement_latency.frm
+│   │   │   ├── x@0024user_summary_by_statement_type.frm
+│   │   │   ├── x@0024user_summary.frm
+│   │   │   ├── x@0024wait_classes_global_by_avg_latency.frm
+│   │   │   ├── x@0024wait_classes_global_by_latency.frm
+│   │   │   ├── x@0024waits_by_host_by_latency.frm
+│   │   │   ├── x@0024waits_by_user_by_latency.frm
+│   │   │   └── x@0024waits_global_by_latency.frm
+│   │   ├── tc.log
+│   │   ├── undo001
+│   │   ├── undo002
+│   │   └── undo003
+│   ├── minio
+│   │   └── data
+│   │       ├── bronze
+│   │       │   ├── asia
+│   │       │   │   └── raw
+│   │       │   │       ├── 005930.KS.csv
+│   │       │   │       │   ├── a4498fa6-da2f-4714-9dcd-1ae4e8d780aa
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── HSI.csv
+│   │       │   │       │   ├── e835e3f3-5d89-4825-8219-b877a2672063
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── N225.csv
+│   │       │   │       │   ├── b698f7cb-d57f-46bd-b0f7-2cc44555187f
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── TCEHY.csv
+│   │       │   │           ├── 398755d8-5145-4bd8-9505-4455cf2110dd
+│   │       │   │           │   └── part.1
+│   │       │   │           └── xl.meta
+│   │       │   ├── contexto
+│   │       │   │   └── paises
+│   │       │   │       └── maestra_paises_v1.csv
+│   │       │   │           └── xl.meta
+│   │       │   ├── crypto
+│   │       │   │   └── raw
+│   │       │   │       ├── ADAUSDT.csv
+│   │       │   │       │   ├── 2d8ec408-6094-4406-9ac4-1c4dd5776500
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── BNBUSDT.csv
+│   │       │   │       │   ├── 86e69ca7-1b9a-4e5d-bc41-8b814c5f0d1d
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── BTCUSDT.csv
+│   │       │   │       │   ├── ae6cebf7-b729-470a-aacc-ba4646b9089f
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── ETHUSDT.csv
+│   │       │   │       │   ├── 36cce589-c2e0-43f9-a625-bb6ec9f11f71
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── SOLUSDT.csv
+│   │       │   │       │   ├── 47b78b4f-d3d4-4831-a2f2-120c73471d8c
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── XRPUSDT.csv
+│   │       │   │           ├── e6d87b72-a08a-4ab2-b30a-a35bc4214304
+│   │       │   │           │   └── part.1
+│   │       │   │           └── xl.meta
+│   │       │   ├── macro
+│   │       │   │   └── raw
+│   │       │   │       ├── comm_gold.csv
+│   │       │   │       │   ├── 81fcec4c-de08-4942-acc5-cb8758596ddc
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── comm_oil_wti.csv
+│   │       │   │       │   ├── 48aad00f-a718-46c1-8e25-e2aa06c4ccf5
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── forex_eur_usd.csv
+│   │       │   │       │   ├── 89584e4a-c412-4e8f-be00-fe24e05dc502
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── index_dxy_dollar.csv
+│   │       │   │       │   ├── 76924b90-8854-4f5a-8276-0a933b2b011c
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── index_vix_fear.csv
+│   │       │   │       │   ├── 1a8e46e4-0158-4ae9-859b-2fe13a5cb9f6
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── rates_10y_bond.csv
+│   │       │   │           ├── cd8f165c-7d7a-4378-afbd-29b12cef8a9c
+│   │       │   │           │   └── part.1
+│   │       │   │           └── xl.meta
+│   │       │   ├── smart_inventory
+│   │       │   │   └── ventas_procesadas
+│   │       │   │       ├── part-00000-b81ad100-f281-4de2-8b3a-91aff419c647-c000.snappy.parquet
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── _SUCCESS
+│   │       │   │           └── xl.meta
+│   │       │   ├── smart_inventory__XLDIR__
+│   │       │   │   └── xl.meta
+│   │       │   └── stocks
+│   │       │       └── sp500_raw
+│   │       │           ├── AAPL.csv
+│   │       │           │   ├── 9dbec188-816c-447f-8cef-cf97aedbac9d
+│   │       │           │   │   └── part.1
+│   │       │           │   └── xl.meta
+│   │       │           ├── AMZN.csv
+│   │       │           │   ├── a0c6fbb3-d93b-4750-ae0f-67f02a9705f6
+│   │       │           │   │   └── part.1
+│   │       │           │   └── xl.meta
+│   │       │           ├── GOOGL.csv
+│   │       │           │   ├── d4734bd5-ddad-440f-a724-394115408cc1
+│   │       │           │   │   └── part.1
+│   │       │           │   └── xl.meta
+│   │       │           ├── JPM.csv
+│   │       │           │   ├── aab7bfc9-33b0-4189-b9b4-9b138ca59326
+│   │       │           │   │   └── part.1
+│   │       │           │   └── xl.meta
+│   │       │           ├── MSFT.csv
+│   │       │           │   ├── ee6ea259-90bd-49aa-ac31-3c056624b252
+│   │       │           │   │   └── part.1
+│   │       │           │   └── xl.meta
+│   │       │           ├── NVDA.csv
+│   │       │           │   ├── a2675113-c0eb-4c7f-a014-238bd36e4d79
+│   │       │           │   │   └── part.1
+│   │       │           │   └── xl.meta
+│   │       │           ├── TSLA.csv
+│   │       │           │   ├── af18a150-8085-4650-8b24-f0f231d4a752
+│   │       │           │   │   └── part.1
+│   │       │           │   └── xl.meta
+│   │       │           └── V.csv
+│   │       │               ├── 84104f19-321d-4a74-bdec-a7d2e1a47b7d
+│   │       │               │   └── part.1
+│   │       │               └── xl.meta
+│   │       ├── buckets
+│   │       │   └── raw
+│   │       │       └── kafka
+│   │       │           └── test_topic
+│   │       │               ├── part-00000-d335c685-094a-42a1-838f-250de41d887b-c000.snappy.parquet
+│   │       │               │   └── xl.meta
+│   │       │               └── _SUCCESS
+│   │       │                   └── xl.meta
+│   │       ├── fraude
+│   │       │   ├── bronze
+│   │       │   │   └── payments
+│   │       │   │       ├── part-00000-14ed5b3d-5300-47a9-8671-adeeed79e21a-c000.snappy.parquet
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── part-00001-14ed5b3d-5300-47a9-8671-adeeed79e21a-c000.snappy.parquet
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── part-00002-14ed5b3d-5300-47a9-8671-adeeed79e21a-c000.snappy.parquet
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── part-00003-14ed5b3d-5300-47a9-8671-adeeed79e21a-c000.snappy.parquet
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── _SUCCESS
+│   │       │   │           └── xl.meta
+│   │       │   ├── gold
+│   │       │   │   ├── payments_scored
+│   │       │   │   │   ├── part-00000-471cba4a-b88b-4144-a5e8-ae5abad9fab8-c000.snappy.parquet
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   └── _SUCCESS
+│   │       │   │   │       └── xl.meta
+│   │       │   │   └── predictions
+│   │       │   │       ├── part-00000-4d156a9d-d362-4a98-afee-1de35a096c3d-c000.snappy.parquet
+│   │       │   │       │   ├── 194ad204-7ef6-4f6b-a072-147d644a79be
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── _SUCCESS
+│   │       │   │           └── xl.meta
+│   │       │   ├── models
+│   │       │   │   └── fraud_lr_v1
+│   │       │   │       ├── metadata
+│   │       │   │       │   ├── part-00000-288c1d5a-6f4f-4dce-be20-395f28e3aabd-c000.txt
+│   │       │   │       │   │   └── xl.meta
+│   │       │   │       │   └── _SUCCESS
+│   │       │   │       │       └── xl.meta
+│   │       │   │       └── stages
+│   │       │   │           ├── 0_VectorAssembler_b4ba48c607e8
+│   │       │   │           │   └── metadata
+│   │       │   │           │       ├── part-00000-24e22d1c-fa36-4ae7-b667-46b3afc4615a-c000.txt
+│   │       │   │           │       │   └── xl.meta
+│   │       │   │           │       └── _SUCCESS
+│   │       │   │           │           └── xl.meta
+│   │       │   │           ├── 1_StandardScaler_310d95d3b2e3
+│   │       │   │           │   ├── data
+│   │       │   │           │   │   ├── part-00000-90831c7a-b827-40c5-bba4-36415e64d6da-c000.snappy.parquet
+│   │       │   │           │   │   │   └── xl.meta
+│   │       │   │           │   │   └── _SUCCESS
+│   │       │   │           │   │       └── xl.meta
+│   │       │   │           │   └── metadata
+│   │       │   │           │       ├── part-00000-31731066-281c-4fa8-a651-2f278a2ffc9d-c000.txt
+│   │       │   │           │       │   └── xl.meta
+│   │       │   │           │       └── _SUCCESS
+│   │       │   │           │           └── xl.meta
+│   │       │   │           └── 2_LogisticRegression_79b98129bd61
+│   │       │   │               ├── data
+│   │       │   │               │   ├── part-00000-32482618-88e1-4feb-ad5d-c5491ddadc7b-c000.snappy.parquet
+│   │       │   │               │   │   └── xl.meta
+│   │       │   │               │   └── _SUCCESS
+│   │       │   │               │       └── xl.meta
+│   │       │   │               └── metadata
+│   │       │   │                   ├── part-00000-46b18519-8bb9-40c8-ac7e-66f7be0241f0-c000.txt
+│   │       │   │                   │   └── xl.meta
+│   │       │   │                   └── _SUCCESS
+│   │       │   │                       └── xl.meta
+│   │       │   └── silver
+│   │       │       └── payments_clean
+│   │       │           ├── part-00000-00ccf527-b44c-4043-a360-8bb32e133492-c000.snappy.parquet
+│   │       │           │   └── xl.meta
+│   │       │           └── _SUCCESS
+│   │       │               └── xl.meta
+│   │       ├── gold
+│   │       │   ├── dashboard_signals
+│   │       │   │   ├── part-00000-2d545a9d-c478-40e2-94c6-c070c6a52024-c000.csv
+│   │       │   │   │   ├── 64d553a2-bc31-4683-a62f-21929cf2af56
+│   │       │   │   │   │   └── part.1
+│   │       │   │   │   └── xl.meta
+│   │       │   │   └── _SUCCESS
+│   │       │   │       └── xl.meta
+│   │       │   ├── market_features
+│   │       │   │   ├── _SUCCESS
+│   │       │   │   │   └── xl.meta
+│   │       │   │   ├── tipo_activo=CRYPTO
+│   │       │   │   │   ├── part-00000-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── 995cfbb0-0444-4123-b3b9-7d4e1111ea18
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   ├── part-00001-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── a08df190-6f13-4681-b6b7-7fa16b2b9e08
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   ├── part-00002-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── 6e5cec9b-4718-4389-a29f-199e2c29872b
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   └── part-00003-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │       ├── 58511109-ca63-4136-969d-4d114078ea19
+│   │       │   │   │       │   └── part.1
+│   │       │   │   │       └── xl.meta
+│   │       │   │   ├── tipo_activo=MACRO
+│   │       │   │   │   ├── part-00000-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── 0607b14f-9c1f-4653-82af-1f0aa4ad4b8a
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   ├── part-00001-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── cdc424c1-d672-4bf5-aab8-42c734a9bd8d
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   ├── part-00002-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── b1b86a13-4107-47da-b407-38012ccf1f3d
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   └── part-00003-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │       ├── d9039ac8-054c-4acc-868a-0e5c0d112dff
+│   │       │   │   │       │   └── part.1
+│   │       │   │   │       └── xl.meta
+│   │       │   │   ├── tipo_activo=STOCK
+│   │       │   │   │   ├── part-00000-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── 24c7b0bf-aca9-4663-a611-0e829da77a1b
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   ├── part-00001-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │   │   ├── 93a2f7c2-57be-44e0-9949-a5bb47a52b79
+│   │       │   │   │   │   │   └── part.1
+│   │       │   │   │   │   └── xl.meta
+│   │       │   │   │   └── part-00003-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │   │       ├── 8b0b0d81-c28e-4688-b73f-819dfb453abb
+│   │       │   │   │       │   └── part.1
+│   │       │   │   │       └── xl.meta
+│   │       │   │   └── tipo_activo=STOCK_ASIA
+│   │       │   │       ├── part-00000-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │       │   ├── 5fd7e456-dde3-42e7-93e2-7f15327f1240
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── part-00001-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │       │   ├── e66cddb7-99bd-482c-98c5-b638bb414501
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       ├── part-00002-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │       │   ├── 7fa7988e-8903-413b-a7cd-a465ba6f4be8
+│   │       │   │       │   │   └── part.1
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── part-00003-0564c220-802b-42d2-9f07-6662e76cce3d.c000.snappy.parquet
+│   │       │   │           ├── 335f4710-f2b1-4041-a45c-e2f9f36a15d0
+│   │       │   │           │   └── part.1
+│   │       │   │           └── xl.meta
+│   │       │   ├── smart_inventory
+│   │       │   │   └── dataset_features
+│   │       │   │       ├── part-00000-3f33d5f8-6166-4911-bcc6-179315d14677-c000.snappy.parquet
+│   │       │   │       │   └── xl.meta
+│   │       │   │       └── _SUCCESS
+│   │       │   │           └── xl.meta
+│   │       │   └── smart_inventory__XLDIR__
+│   │       │       └── xl.meta
+│   │       ├── models
+│   │       │   ├── smart_inventory
+│   │       │   │   └── rf_demanda_v1
+│   │       │   │       ├── metadata
+│   │       │   │       │   ├── part-00000-63984100-7e1e-4ade-96a1-1ff10632fac3-c000.txt
+│   │       │   │       │   │   └── xl.meta
+│   │       │   │       │   └── _SUCCESS
+│   │       │   │       │       └── xl.meta
+│   │       │   │       └── stages
+│   │       │   │           ├── 0_VectorAssembler_be31144995bf
+│   │       │   │           │   └── metadata
+│   │       │   │           │       ├── part-00000-d8fc8047-431f-451e-a353-f49dc0f96b9b-c000.txt
+│   │       │   │           │       │   └── xl.meta
+│   │       │   │           │       └── _SUCCESS
+│   │       │   │           │           └── xl.meta
+│   │       │   │           └── 1_RandomForestRegressor_79ab4742a9ec
+│   │       │   │               ├── data
+│   │       │   │               │   ├── part-00000-d3c5ec49-e635-4a0e-9324-0b43d7560e09-c000.snappy.parquet
+│   │       │   │               │   │   └── xl.meta
+│   │       │   │               │   └── _SUCCESS
+│   │       │   │               │       └── xl.meta
+│   │       │   │               ├── metadata
+│   │       │   │               │   ├── part-00000-c07f90a8-10da-4c63-a7b7-f79005ca96d3-c000.txt
+│   │       │   │               │   │   └── xl.meta
+│   │       │   │               │   └── _SUCCESS
+│   │       │   │               │       └── xl.meta
+│   │       │   │               └── treesMetadata
+│   │       │   │                   ├── part-00000-57b6130c-89d2-47db-9f2d-84a6991a69a1-c000.snappy.parquet
+│   │       │   │                   │   └── xl.meta
+│   │       │   │                   └── _SUCCESS
+│   │       │   │                       └── xl.meta
+│   │       │   ├── smart_inventory__XLDIR__
+│   │       │   │   └── xl.meta
+│   │       │   └── trading_model_1h
+│   │       │       ├── metadata
+│   │       │       │   ├── part-00000-9308a43f-a404-4c1f-91ce-4c2f9507f6b3-c000.txt
+│   │       │       │   │   └── xl.meta
+│   │       │       │   └── _SUCCESS
+│   │       │       │       └── xl.meta
+│   │       │       └── stages
+│   │       │           ├── 0_VectorAssembler_77ee59ed6829
+│   │       │           │   └── metadata
+│   │       │           │       ├── part-00000-c05e28c0-40e6-4a3c-8ece-cc2c43ecfc59-c000.txt
+│   │       │           │       │   └── xl.meta
+│   │       │           │       └── _SUCCESS
+│   │       │           │           └── xl.meta
+│   │       │           └── 1_GBTClassifier_83747d673d59
+│   │       │               ├── data
+│   │       │               │   ├── part-00000-e3f6ae2e-b904-4154-9b72-ed41076a55b4-c000.snappy.parquet
+│   │       │               │   │   ├── a20928f0-5548-4435-98ed-bb41d66cddfb
+│   │       │               │   │   │   └── part.1
+│   │       │               │   │   └── xl.meta
+│   │       │               │   └── _SUCCESS
+│   │       │               │       └── xl.meta
+│   │       │               ├── metadata
+│   │       │               │   ├── part-00000-cfcf9502-42ae-4263-9444-ee462862f58c-c000.txt
+│   │       │               │   │   └── xl.meta
+│   │       │               │   └── _SUCCESS
+│   │       │               │       └── xl.meta
+│   │       │               └── treesMetadata
+│   │       │                   ├── part-00000-1cf01fc9-5a73-4706-b9aa-4eb023a462f3-c000.snappy.parquet
+│   │       │                   │   └── xl.meta
+│   │       │                   └── _SUCCESS
+│   │       │                       └── xl.meta
+│   │       └── silver
+│   │           ├── contexto
+│   │           │   └── paises
+│   │           │       ├── part-00000-2315d632-e82b-45ea-9171-a5b3d9deb934-c000.snappy.parquet
+│   │           │       │   └── xl.meta
+│   │           │       └── _SUCCESS
+│   │           │           └── xl.meta
+│   │           ├── market_data
+│   │           │   ├── _SUCCESS
+│   │           │   │   └── xl.meta
+│   │           │   ├── tipo_activo=CRYPTO
+│   │           │   │   └── pais_origen=Global
+│   │           │   │       ├── part-00000-b9a8b0d8-2226-4619-8846-a84bb854821f.c000.snappy.parquet
+│   │           │   │       │   ├── d1bb71e8-6f40-40e9-91d9-ed2e8cc3f022
+│   │           │   │       │   │   └── part.1
+│   │           │   │       │   └── xl.meta
+│   │           │   │       ├── part-00001-b9a8b0d8-2226-4619-8846-a84bb854821f.c000.snappy.parquet
+│   │           │   │       │   ├── 47302ded-053f-4a1c-bfc4-e975a221ff7b
+│   │           │   │       │   │   └── part.1
+│   │           │   │       │   └── xl.meta
+│   │           │   │       └── part-00002-b9a8b0d8-2226-4619-8846-a84bb854821f.c000.snappy.parquet
+│   │           │   │           ├── 103f6192-fd47-4f6c-84e2-2ddf82955af1
+│   │           │   │           │   └── part.1
+│   │           │   │           └── xl.meta
+│   │           │   ├── tipo_activo=MACRO
+│   │           │   │   ├── pais_origen=Eurozona
+│   │           │   │   │   └── part-00000-9a6d421f-e0d3-4fca-8332-59f18e0481f1.c000.snappy.parquet
+│   │           │   │   │       ├── 622660a6-30a4-4f25-897e-38b77b8b5137
+│   │           │   │   │       │   └── part.1
+│   │           │   │   │       └── xl.meta
+│   │           │   │   └── pais_origen=USA
+│   │           │   │       ├── part-00000-9a6d421f-e0d3-4fca-8332-59f18e0481f1.c000.snappy.parquet
+│   │           │   │       │   ├── 4475ee2b-28d0-41dc-b83f-b7fe12c02bc8
+│   │           │   │       │   │   └── part.1
+│   │           │   │       │   └── xl.meta
+│   │           │   │       ├── part-00001-9a6d421f-e0d3-4fca-8332-59f18e0481f1.c000.snappy.parquet
+│   │           │   │       │   ├── c5922131-8dd9-41a5-821e-0b3bdce7b903
+│   │           │   │       │   │   └── part.1
+│   │           │   │       │   └── xl.meta
+│   │           │   │       └── part-00002-9a6d421f-e0d3-4fca-8332-59f18e0481f1.c000.snappy.parquet
+│   │           │   │           ├── 2b2d2a42-eef2-46c4-9bec-13463d85ac38
+│   │           │   │           │   └── part.1
+│   │           │   │           └── xl.meta
+│   │           │   ├── tipo_activo=STOCK
+│   │           │   │   └── pais_origen=USA
+│   │           │   │       ├── part-00000-ec848492-e80c-4198-86dc-930b8f78f142.c000.snappy.parquet
+│   │           │   │       │   ├── fbfc7663-29a4-49b6-8ddb-d4fd3a00587d
+│   │           │   │       │   │   └── part.1
+│   │           │   │       │   └── xl.meta
+│   │           │   │       ├── part-00001-ec848492-e80c-4198-86dc-930b8f78f142.c000.snappy.parquet
+│   │           │   │       │   ├── eabb01c2-6290-4d4c-a7f8-aecd5832212e
+│   │           │   │       │   │   └── part.1
+│   │           │   │       │   └── xl.meta
+│   │           │   │       ├── part-00002-ec848492-e80c-4198-86dc-930b8f78f142.c000.snappy.parquet
+│   │           │   │       │   ├── f2157f46-dbd9-4547-95ad-32fcac9924e3
+│   │           │   │       │   │   └── part.1
+│   │           │   │       │   └── xl.meta
+│   │           │   │       └── part-00003-ec848492-e80c-4198-86dc-930b8f78f142.c000.snappy.parquet
+│   │           │   │           ├── 134adce5-0de6-4eff-8027-5eadf1921881
+│   │           │   │           │   └── part.1
+│   │           │   │           └── xl.meta
+│   │           │   └── tipo_activo=STOCK_ASIA
+│   │           │       ├── pais_origen=China
+│   │           │       │   ├── part-00000-a8e6262a-22dc-4797-aa85-d9af451966ca.c000.snappy.parquet
+│   │           │       │   │   └── xl.meta
+│   │           │       │   ├── part-00001-a8e6262a-22dc-4797-aa85-d9af451966ca.c000.snappy.parquet
+│   │           │       │   │   └── xl.meta
+│   │           │       │   └── part-00003-a8e6262a-22dc-4797-aa85-d9af451966ca.c000.snappy.parquet
+│   │           │       │       └── xl.meta
+│   │           │       └── pais_origen=Japon
+│   │           │           └── part-00002-a8e6262a-22dc-4797-aa85-d9af451966ca.c000.snappy.parquet
+│   │           │               └── xl.meta
+│   │           ├── smart_inventory
+│   │           │   └── ventas_limpias
+│   │           │       ├── part-00000-f8a14ddc-3869-4263-a22a-064596ed83f3-c000.snappy.parquet
+│   │           │       │   └── xl.meta
+│   │           │       └── _SUCCESS
+│   │           │           └── xl.meta
+│   │           └── smart_inventory__XLDIR__
+│   │               └── xl.meta
+│   ├── n8n-data
+│   │   ├── binaryData
+│   │   ├── config
+│   │   ├── crash.journal
+│   │   ├── database.sqlite
+│   │   ├── git
+│   │   ├── n8nEventLog-1.log
+│   │   ├── n8nEventLog.log
+│   │   ├── nodes
+│   │   │   └── package.json
+│   │   └── ssh
+│   ├── redis-data
+│   │   └── dump.rdb
+│   ├── shared
+│   │   ├── dags_airflow
+│   │   │   ├── dag_C03_flujo_principal.py
+│   │   │   ├── dag_C04_flujo_principal_init.py
+│   │   │   ├── dag_kafka_to_csv.py
+│   │   │   ├── dag_kafka_to_minio.py
+│   │   │   ├── dag_mariadb_to_kafka.py
+│   │   │   ├── dag_score_and_write_mariadb.py
+│   │   │   ├── dag_silver_to_gold_mariadb.py
+│   │   │   ├── dag_spark_get_data_minio.py
+│   │   │   ├── dag_test_mariadb.py
+│   │   │   ├── dag_train_model_from_gold.py
+│   │   │   ├── fraud_detection_dag.py
+│   │   │   └── __pycache__
+│   │   │       ├── dag_C03_flujo_principal.cpython-312.pyc
+│   │   │       ├── dag_C04_flujo_principal_init.cpython-312.pyc
+│   │   │       ├── dag_kafka_to_csv.cpython-312.pyc
+│   │   │       ├── dag_kafka_to_minio.cpython-312.pyc
+│   │   │       ├── dag_mariadb_to_kafka.cpython-312.pyc
+│   │   │       ├── dag_score_and_write_mariadb.cpython-312.pyc
+│   │   │       ├── dag_silver_to_gold_mariadb.cpython-312.pyc
+│   │   │       ├── dag_spark_get_data_minio.cpython-312.pyc
+│   │   │       ├── dag_test_mariadb.cpython-312.pyc
+│   │   │       ├── dag_train_model_from_gold.cpython-312.pyc
+│   │   │       └── fraud_detection_dag.cpython-312.pyc
+│   │   ├── kafka_data_export.csv
+│   │   ├── minioshareddata
+│   │   │   └── landing
+│   │   │       ├── crypto_trading
+│   │   │       │   ├── asia
+│   │   │       │   │   ├── 005930.KS.csv
+│   │   │       │   │   ├── HSI.csv
+│   │   │       │   │   ├── N225.csv
+│   │   │       │   │   └── TCEHY.csv
+│   │   │       │   ├── contexto
+│   │   │       │   │   └── maestra_paises_v1.csv
+│   │   │       │   ├── crypto
+│   │   │       │   │   ├── ADAUSDT.csv
+│   │   │       │   │   ├── BNBUSDT.csv
+│   │   │       │   │   ├── BTCUSDT.csv
+│   │   │       │   │   ├── ETHUSDT.csv
+│   │   │       │   │   ├── SOLUSDT.csv
+│   │   │       │   │   └── XRPUSDT.csv
+│   │   │       │   ├── macro
+│   │   │       │   │   ├── comm_gold.csv
+│   │   │       │   │   ├── comm_oil_wti.csv
+│   │   │       │   │   ├── forex_eur_usd.csv
+│   │   │       │   │   ├── index_dxy_dollar.csv
+│   │   │       │   │   ├── index_vix_fear.csv
+│   │   │       │   │   └── rates_10y_bond.csv
+│   │   │       │   └── stocks
+│   │   │       │       ├── AAPL.csv
+│   │   │       │       ├── AMZN.csv
+│   │   │       │       ├── GOOGL.csv
+│   │   │       │       ├── JPM.csv
+│   │   │       │       ├── MSFT.csv
+│   │   │       │       ├── NVDA.csv
+│   │   │       │       ├── TSLA.csv
+│   │   │       │       └── V.csv
+│   │   │       ├── payments
+│   │   │       │   ├── payments_20260110_174850.json
+│   │   │       │   ├── payments_20260123_205542.json
+│   │   │       │   ├── payments_20260123_211010.json
+│   │   │       │   ├── payments_20260123_211538.json
+│   │   │       │   ├── payments_20260123_213759.json
+│   │   │       │   ├── payments_20260123_215029.json
+│   │   │       │   ├── payments_20260123_231148.json
+│   │   │       │   ├── payments_20260123_231640.json
+│   │   │       │   ├── payments_20260123_234224.json
+│   │   │       │   ├── payments_20260123_235609.json
+│   │   │       │   └── payments_20260124_200312.json
+│   │   │       └── smart_inventory
+│   │   │           └── ventas_ejemplo.csv
+│   │   ├── scripts_airflow
+│   │   │   ├── crypto_trading
+│   │   │   │   ├── bronce
+│   │   │   │   ├── comun
+│   │   │   │   │   └── sesion_spark.py
+│   │   │   │   ├── historical
+│   │   │   │   │   ├── carga_inicial_500.py
+│   │   │   │   │   ├── carga_inicial_asia.py
+│   │   │   │   │   ├── carga_inicial_crypto.py
+│   │   │   │   │   ├── carga_inicial_macro.py
+│   │   │   │   │   └── carga_maestra_paises.py
+│   │   │   │   ├── ml
+│   │   │   │   │   ├── spark_backtest_model.py
+│   │   │   │   │   └── spark_train_trading_model.py
+│   │   │   │   ├── oro
+│   │   │   │   │   └── spark_feature_engineering_gold.py
+│   │   │   │   └── plata
+│   │   │   │       └── spark_processing_silver.py
+│   │   │   ├── fraud_pipeline
+│   │   │   │   ├── common
+│   │   │   │   │   ├── __pycache__
+│   │   │   │   │   │   └── schemas.cpython-310.pyc
+│   │   │   │   │   └── schemas.py
+│   │   │   │   ├── job_main.py
+│   │   │   │   ├── script_spark_score_and_write_to_mariadb.py
+│   │   │   │   ├── script_spark_silver_to_gold_mariadb.py
+│   │   │   │   └── script_spark_train_model_from_gold.py
+│   │   │   ├── script_spark_mariadb_to_kafka.py
+│   │   │   ├── smart_inventory
+│   │   │   │   ├── bronce
+│   │   │   │   │   └── spark_ingreso_datos_crudos.py
+│   │   │   │   ├── comun
+│   │   │   │   │   ├── __pycache__
+│   │   │   │   │   │   └── sesion_spark.cpython-310.pyc
+│   │   │   │   │   └── sesion_spark.py
+│   │   │   │   ├── oro
+│   │   │   │   │   ├── spark_entrenamiento_modelo_de_demanda.py
+│   │   │   │   │   ├── spark_ingenieria_caracteristicas.py
+│   │   │   │   │   └── spark_simulacion_montecarlo.py
+│   │   │   │   ├── plata
+│   │   │   │   │   └── spark_limpieza_datos_ventas.py
+│   │   │   │   └── servicios
+│   │   │   │       ├── __pycache__
+│   │   │   │       │   └── save_db.cpython-310.pyc
+│   │   │   │       └── save_db.py
+│   │   │   ├── spark_get_data_minio.py
+│   │   │   ├── spark_kafka_to_csv.py
+│   │   │   ├── spark_kafka_to_minio.py
+│   │   │   └── test_mariadb.py
+│   │   └── spark-events
+│   │       ├── eventlog_v2_app-20260124230620-0000
+│   │       │   ├── appstatus_app-20260124230620-0000
+│   │       │   └── events_1_app-20260124230620-0000.zstd
+│   │       ├── eventlog_v2_app-20260124230701-0001
+│   │       │   ├── appstatus_app-20260124230701-0001
+│   │       │   └── events_1_app-20260124230701-0001.zstd
+│   │       ├── eventlog_v2_app-20260124230730-0002
+│   │       │   ├── appstatus_app-20260124230730-0002
+│   │       │   └── events_1_app-20260124230730-0002.zstd
+│   │       ├── eventlog_v2_app-20260124230805-0003
+│   │       │   ├── appstatus_app-20260124230805-0003
+│   │       │   └── events_1_app-20260124230805-0003.zstd
+│   │       ├── eventlog_v2_app-20260124230908-0004
+│   │       │   ├── appstatus_app-20260124230908-0004
+│   │       │   └── events_1_app-20260124230908-0004.zstd
+│   │       ├── eventlog_v2_app-20260124231001-0005
+│   │       │   ├── appstatus_app-20260124231001-0005
+│   │       │   └── events_1_app-20260124231001-0005.zstd
+│   │       ├── eventlog_v2_app-20260124231022-0006
+│   │       │   ├── appstatus_app-20260124231022-0006
+│   │       │   └── events_1_app-20260124231022-0006.zstd
+│   │       ├── eventlog_v2_app-20260124231045-0007
+│   │       │   ├── appstatus_app-20260124231045-0007
+│   │       │   └── events_1_app-20260124231045-0007.zstd
+│   │       ├── eventlog_v2_app-20260124231109-0008
+│   │       │   ├── appstatus_app-20260124231109-0008
+│   │       │   └── events_1_app-20260124231109-0008.zstd
+│   │       ├── eventlog_v2_app-20260124231143-0009
+│   │       │   ├── appstatus_app-20260124231143-0009
+│   │       │   └── events_1_app-20260124231143-0009.zstd
+│   │       ├── eventlog_v2_app-20260124231155-0010
+│   │       │   ├── appstatus_app-20260124231155-0010
+│   │       │   └── events_1_app-20260124231155-0010.zstd
+│   │       ├── eventlog_v2_app-20260124231236-0011
+│   │       │   ├── appstatus_app-20260124231236-0011
+│   │       │   └── events_1_app-20260124231236-0011.zstd
+│   │       ├── eventlog_v2_app-20260124231311-0012
+│   │       │   ├── appstatus_app-20260124231311-0012
+│   │       │   └── events_1_app-20260124231311-0012.zstd
+│   │       ├── eventlog_v2_app-20260124231427-0013
+│   │       │   ├── appstatus_app-20260124231427-0013
+│   │       │   └── events_1_app-20260124231427-0013.zstd
+│   │       ├── eventlog_v2_app-20260125003713-0014
+│   │       │   ├── appstatus_app-20260125003713-0014
+│   │       │   └── events_1_app-20260125003713-0014.zstd
+│   │       ├── eventlog_v2_app-20260125004947-0015
+│   │       │   ├── appstatus_app-20260125004947-0015
+│   │       │   └── events_1_app-20260125004947-0015.zstd
+│   │       ├── eventlog_v2_app-20260125005209-0016
+│   │       │   ├── appstatus_app-20260125005209-0016
+│   │       │   └── events_1_app-20260125005209-0016.zstd
+│   │       ├── eventlog_v2_app-20260126232814-0017
+│   │       │   ├── appstatus_app-20260126232814-0017
+│   │       │   └── events_1_app-20260126232814-0017.zstd
+│   │       ├── eventlog_v2_app-20260126233529-0018
+│   │       │   ├── appstatus_app-20260126233529-0018
+│   │       │   └── events_1_app-20260126233529-0018.zstd
+│   │       ├── eventlog_v2_app-20260126233542-0019
+│   │       │   ├── appstatus_app-20260126233542-0019
+│   │       │   └── events_1_app-20260126233542-0019.zstd
+│   │       ├── eventlog_v2_app-20260126233556-0020
+│   │       │   ├── appstatus_app-20260126233556-0020
+│   │       │   └── events_1_app-20260126233556-0020.zstd
+│   │       ├── eventlog_v2_app-20260126233611-0021
+│   │       │   ├── appstatus_app-20260126233611-0021
+│   │       │   └── events_1_app-20260126233611-0021.zstd
+│   │       ├── eventlog_v2_app-20260126233631-0022
+│   │       │   ├── appstatus_app-20260126233631-0022
+│   │       │   └── events_1_app-20260126233631-0022.zstd
+│   │       ├── eventlog_v2_app-20260126233640-0023
+│   │       │   ├── appstatus_app-20260126233640-0023
+│   │       │   └── events_1_app-20260126233640-0023.zstd
+│   │       ├── eventlog_v2_app-20260126234222-0024
+│   │       │   ├── appstatus_app-20260126234222-0024
+│   │       │   └── events_1_app-20260126234222-0024.zstd
+│   │       ├── eventlog_v2_app-20260126235458-0025
+│   │       │   ├── appstatus_app-20260126235458-0025
+│   │       │   └── events_1_app-20260126235458-0025.zstd
+│   │       ├── eventlog_v2_app-20260127002134-0026
+│   │       │   ├── appstatus_app-20260127002134-0026
+│   │       │   └── events_1_app-20260127002134-0026.zstd
+│   │       ├── eventlog_v2_app-20260127002152-0027
+│   │       │   ├── appstatus_app-20260127002152-0027
+│   │       │   └── events_1_app-20260127002152-0027.zstd
+│   │       ├── eventlog_v2_app-20260127003246-0028
+│   │       │   ├── appstatus_app-20260127003246-0028
+│   │       │   └── events_1_app-20260127003246-0028.zstd
+│   │       ├── eventlog_v2_app-20260127003309-0029
+│   │       │   ├── appstatus_app-20260127003309-0029
+│   │       │   └── events_1_app-20260127003309-0029.zstd
+│   │       ├── eventlog_v2_app-20260127004726-0030
+│   │       │   ├── appstatus_app-20260127004726-0030
+│   │       │   └── events_1_app-20260127004726-0030.zstd
+│   │       ├── eventlog_v2_app-20260127004747-0031
+│   │       │   ├── appstatus_app-20260127004747-0031
+│   │       │   └── events_1_app-20260127004747-0031.zstd
+│   │       ├── eventlog_v2_app-20260127005855-0034
+│   │       │   ├── appstatus_app-20260127005855-0034
+│   │       │   └── events_1_app-20260127005855-0034.zstd
+│   │       ├── eventlog_v2_app-20260127005928-0035
+│   │       │   ├── appstatus_app-20260127005928-0035
+│   │       │   └── events_1_app-20260127005928-0035.zstd
+│   │       ├── eventlog_v2_app-20260127011715-0038
+│   │       │   ├── appstatus_app-20260127011715-0038
+│   │       │   └── events_1_app-20260127011715-0038.zstd
+│   │       ├── eventlog_v2_app-20260127011736-0039
+│   │       │   ├── appstatus_app-20260127011736-0039
+│   │       │   └── events_1_app-20260127011736-0039.zstd
+│   │       ├── eventlog_v2_app-20260127013452-0040
+│   │       │   ├── appstatus_app-20260127013452-0040
+│   │       │   └── events_1_app-20260127013452-0040.zstd
+│   │       ├── eventlog_v2_app-20260127013514-0041
+│   │       │   ├── appstatus_app-20260127013514-0041
+│   │       │   └── events_1_app-20260127013514-0041.zstd
+│   │       ├── eventlog_v2_app-20260127014030-0042
+│   │       │   ├── appstatus_app-20260127014030-0042
+│   │       │   └── events_1_app-20260127014030-0042.zstd
+│   │       ├── eventlog_v2_app-20260127015113-0043
+│   │       │   ├── appstatus_app-20260127015113-0043
+│   │       │   └── events_1_app-20260127015113-0043.zstd
+│   │       ├── eventlog_v2_app-20260127015137-0044
+│   │       │   ├── appstatus_app-20260127015137-0044
+│   │       │   └── events_1_app-20260127015137-0044.zstd
+│   │       ├── eventlog_v2_app-20260127024215-0048
+│   │       │   ├── appstatus_app-20260127024215-0048
+│   │       │   └── events_1_app-20260127024215-0048.zstd
+│   │       ├── eventlog_v2_app-20260127024215-0049
+│   │       │   ├── appstatus_app-20260127024215-0049
+│   │       │   └── events_1_app-20260127024215-0049.zstd
+│   │       ├── eventlog_v2_app-20260127024238-0050
+│   │       │   ├── appstatus_app-20260127024238-0050
+│   │       │   └── events_1_app-20260127024238-0050.zstd
+│   │       ├── eventlog_v2_app-20260127024253-0051
+│   │       │   ├── appstatus_app-20260127024253-0051
+│   │       │   └── events_1_app-20260127024253-0051.zstd
+│   │       ├── eventlog_v2_app-20260127025758-0055
+│   │       │   ├── appstatus_app-20260127025758-0055
+│   │       │   └── events_1_app-20260127025758-0055.zstd
+│   │       ├── eventlog_v2_app-20260127025821-0056
+│   │       │   ├── appstatus_app-20260127025821-0056
+│   │       │   └── events_1_app-20260127025821-0056.zstd
+│   │       ├── eventlog_v2_app-20260127031019-0060
+│   │       │   ├── appstatus_app-20260127031019-0060
+│   │       │   └── events_1_app-20260127031019-0060.zstd
+│   │       ├── eventlog_v2_app-20260127031811-0064
+│   │       │   ├── appstatus_app-20260127031811-0064
+│   │       │   └── events_1_app-20260127031811-0064.zstd
+│   │       ├── eventlog_v2_app-20260127032954-0070
+│   │       │   ├── appstatus_app-20260127032954-0070
+│   │       │   └── events_1_app-20260127032954-0070.zstd
+│   │       ├── eventlog_v2_app-20260127035432-0074
+│   │       │   ├── appstatus_app-20260127035432-0074
+│   │       │   └── events_1_app-20260127035432-0074.zstd
+│   │       └── eventlog_v2_app-20260127040729-0078  [error opening dir]
+│   ├── spark
+│   ├── superset
+│   │   └── superset.db
+│   └── tradingdashboard
+│       └── app
+│           └── trading_app.py
+└── wait-for-db.sh
+
+559 directories, 1041 files

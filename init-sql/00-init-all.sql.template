@@ -38,6 +38,38 @@ VALUES
   ('sensor_este',  21.8, 58.9),
   ('sensor_oeste', 24.1, 52.2);
 
+USE ${MARIADB_DATABASE};
+
+-- 1. Tabla de Cotizaciones
+CREATE TABLE IF NOT EXISTS market_data_raw (
+    fecha DATETIME NOT NULL,
+    activo VARCHAR(50) NOT NULL,
+    tipo_activo VARCHAR(20) NOT NULL,
+    apertura DECIMAL(20, 8),
+    alta DECIMAL(20, 8),
+    baja DECIMAL(20, 8),
+    cierre DECIMAL(20, 8),
+    volumen DECIMAL(24, 8),
+    origen VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (activo, fecha),
+    INDEX idx_activo_fecha (activo, fecha),
+    INDEX idx_tipo_activo (tipo_activo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. Tabla Maestra de Países
+CREATE TABLE IF NOT EXISTS contexto_paises (
+    pais VARCHAR(50) NOT NULL,
+    region VARCHAR(50),
+    moneda VARCHAR(10),
+    en_conflicto TINYINT(1) DEFAULT 0,
+    exporta_energia TINYINT(1) DEFAULT 0,
+    tipo_gobierno INT,
+    riesgo_climatico INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (pais)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ==========================
 -- BASE DE DATOS: SUPERSET
 -- ==========================

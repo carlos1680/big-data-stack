@@ -42,7 +42,7 @@ fi
 fix_volumes() {
   echo -e "${YELLOW}🧩 Verificando estructura de volúmenes locales...${RESET}"
 
-  mkdir -p volumenes/{superset,jupyterlab,shared,airflow-logs,airflow-plugins,redis-data,n8n-data}
+  mkdir -p volumenes/{superset,jupyterlab,shared,airflow-logs,airflow-plugins,redis-data,n8n-data,tradingdashboard}
   mkdir -p volumenes/shared/{dags_airflow,scripts_airflow,spark-events,minioshareddata}
   mkdir -p volumenes/shared/minioshareddata
 
@@ -55,7 +55,8 @@ fix_volumes() {
     volumenes/airflow-logs \
     volumenes/airflow-plugins \
     volumenes/redis-data \
-    volumenes/n8n-data 2>/dev/null || true
+    volumenes/n8n-data \
+    volumenes/tradingdashboard 2>/dev/null || true
   echo -e "${GREEN}✅ Permisos aplicados correctamente a carpetas de usuario.${RESET}"
   echo -e "${YELLOW}⚠️  Carpetas protegidas (MariaDB y MinIO) no fueron modificadas para evitar errores.${RESET}"
 
@@ -468,7 +469,7 @@ start_services_local() {
   wait_for_kafka
 
   wait_for_service spark-master "Spark Master" 15 5
-  wait_for_service superset "Superset" 15 5 
+  wait_for_service superset "Superset" 20 20
   wait_for_service jupyterlab "JupyterLab" 20 10
 
   local AIRFLOW_HTTP_PORT
@@ -498,6 +499,7 @@ start_services_local() {
   echo -e "➡️  ${BOLD}JupyterLab:${RESET}     ${GREEN}http://localhost:${JUPYTER_PORT}${RESET}   ${YELLOW}(token:${JUPYTER_TOKEN})${RESET}"
   echo -e "➡️  ${BOLD}n8n (local, sin ngrok):${RESET} ${GREEN}${local_webhook}${RESET}   ${YELLOW}(user:${N8N_BASIC_AUTH_USER} / pass:${N8N_BASIC_AUTH_PASSWORD})${RESET}"
   echo -e "➡️  ${BOLD}MLFlow:${RESET}     ${GREEN}http://localhost:${MLFLOW_PORT}${RESET}${RESET}"
+  echo -e "➡️  ${BOLD}Trading Dashboard:${RESET}     ${GREEN}http://localhost:${TRADING_PORT}${RESET}${RESET}"
 }
 
 # ====
@@ -516,7 +518,7 @@ start_services_public() {
   check_mariadb
 
   wait_for_service spark-master "Spark Master" 15 5 
-  wait_for_service superset "Superset" 15 5
+  wait_for_service superset "Superset" 20 20
   wait_for_service jupyterlab "JupyterLab" 15 5 
 
   local AIRFLOW_HTTP_PORT
@@ -546,6 +548,7 @@ start_services_public() {
   echo -e "➡️  ${BOLD}JupyterLab:${RESET}     ${GREEN}http://localhost:${JUPYTER_PORT}${RESET}   ${YELLOW}(token:${JUPYTER_TOKEN})${RESET}"
   echo -e "➡️  ${BOLD}n8n (local):${RESET}     ${GREEN}http://localhost:${N8N_PORT}${RESET}   ${YELLOW}(user:${N8N_BASIC_AUTH_USER} / pass:${N8N_BASIC_AUTH_PASSWORD})${RESET}"
   echo -e "➡️  ${BOLD}MLFlow:${RESET}     ${GREEN}http://localhost:${MLFLOW_PORT}${RESET}${RESET}"
+  echo -e "➡️  ${BOLD}Trading Dashboard:${RESET}     ${GREEN}http://localhost:${TRADING_PORT}${RESET}${RESET}"
 }
 
 # ====
@@ -626,7 +629,10 @@ full_clean() {
     
     # Obtenemos solo los IDs de las imágenes definidas en el docker-compose.yml
     local STACK_IMAGES
-    STACK_IMAGES=$(COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" images -q)
+    #STACK_IMAGES=$(COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" images -q)
+    STACK_IMAGES=$(COMPOSE_PROJECT_NAME="${BIGDATA_PROJECT_NAME}" docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" config --images)
+    
+    
     
     if [ -n "${STACK_IMAGES}" ]; then
       # Eliminamos las imágenes de forma selectiva

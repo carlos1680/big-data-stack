@@ -18,6 +18,7 @@ services:
       MYSQL_DATABASE: ${MARIADB_DATABASE}
       MYSQL_USER: ${MARIADB_USER}
       MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+      TZ: "${ZONA_HORARIA}"
     healthcheck:
       test: ["CMD-SHELL", "mariadb -u${MARIADB_USER} -p${MARIADB_PASSWORD} -e 'SELECT 1;'"]
       interval: 10s
@@ -40,6 +41,8 @@ services:
     image: adminer:latest
     container_name: adminer
     restart: unless-stopped
+    environment:
+      TZ: "${ZONA_HORARIA}"
     depends_on:
       - mariadb
     ports:
@@ -59,6 +62,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      TZ: "${ZONA_HORARIA}"
     ports:
       - "${MINIO_PORT}:9000"
       - "${MINIO_CONSOLE_PORT}:9001"
@@ -81,6 +85,8 @@ services:
   minio-init:
     image: minio/mc:latest
     container_name: minio-init
+    environment:
+      TZ: "${ZONA_HORARIA}"
     depends_on:
       minio:
         condition: service_healthy
@@ -118,6 +124,10 @@ services:
       SPARK_PUBLIC_DNS: localhost
       SPARK_HISTORY_OPTS: -Dspark.history.fs.logDirectory=/tmp/spark-events -Dspark.history.ui.port=18080
       SPARK_DAEMON_JAVA_OPTS: -Dspark.eventLog.enabled=true -Dspark.eventLog.dir=/tmp/spark-events
+      TZ: "${ZONA_HORARIA}"
+      ALPACA_API_KEY: ${ALPACA_API_KEY}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_ENDPOINT: ${ALPACA_ENDPOINT}
     ports:
       - "${SPARK_MASTER_WEBUI_PORT}:8080"
       - "${SPARK_MASTER_PORT}:7077"
@@ -153,12 +163,16 @@ services:
     environment:
       SPARK_MODE: worker
       SPARK_MASTER: spark://spark-master:7077
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
+      SPARK_WORKER_CORES: 3
+      SPARK_WORKER_MEMORY: 4g
       SPARK_LOCAL_IP: ${SPARK_WORKER1_IP}
       SPARK_NO_DAEMONIZE: "true"
       SPARK_HISTORY_OPTS: -Dspark.history.fs.logDirectory=/tmp/spark-events -Dspark.history.ui.port=18080
       SPARK_DAEMON_JAVA_OPTS: -Dspark.eventLog.enabled=true -Dspark.eventLog.dir=/tmp/spark-events
+      TZ: "${ZONA_HORARIA}"
+      ALPACA_API_KEY: ${ALPACA_API_KEY}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_ENDPOINT: ${ALPACA_ENDPOINT}
     depends_on:
       - spark-master
     volumes:
@@ -184,12 +198,16 @@ services:
     environment:
       SPARK_MODE: worker
       SPARK_MASTER: spark://spark-master:7077
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
+      SPARK_WORKER_CORES: 3
+      SPARK_WORKER_MEMORY: 4g
       SPARK_LOCAL_IP: ${SPARK_WORKER2_IP}
       SPARK_NO_DAEMONIZE: "true"
       SPARK_HISTORY_OPTS: -Dspark.history.fs.logDirectory=/tmp/spark-events -Dspark.history.ui.port=18080
       SPARK_DAEMON_JAVA_OPTS: -Dspark.eventLog.enabled=true -Dspark.eventLog.dir=/tmp/spark-events
+      TZ: "${ZONA_HORARIA}"
+      ALPACA_API_KEY: ${ALPACA_API_KEY}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_ENDPOINT: ${ALPACA_ENDPOINT}
     depends_on:
       - spark-master
     volumes:
@@ -218,6 +236,7 @@ services:
       SPARK_NO_DAEMONIZE: "true"
       SPARK_HISTORY_OPTS: -Dspark.history.fs.logDirectory=/tmp/spark-events -Dspark.history.ui.port=18080
       SPARK_DAEMON_JAVA_OPTS: -Dspark.eventLog.enabled=true -Dspark.eventLog.dir=/tmp/spark-events
+      TZ: "${ZONA_HORARIA}"
     ports:
       - "${SPARK_HISTORY_PORT}:18080"
     volumes:
@@ -251,6 +270,7 @@ services:
       SPARK_MASTER: ${JUPYTER_SPARK_MASTER}
       PYSPARK_PYTHON: python3
       MARIADB_JDBC_URL_LIB: "${MARIADB_JDBC_BASE_URL}/${MARIADB_JDBC_VERSION}/mariadb-java-client-${MARIADB_JDBC_VERSION}.jar"
+      TZ: "${ZONA_HORARIA}"
     ports:
       - "${JUPYTER_PORT}:8888"
     volumes:
@@ -283,19 +303,27 @@ services:
     depends_on:
       - mariadb
     environment:
+      # --- VARIABLES DE ENTORNO ---
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
       SUPERSET_ADMIN_USER: ${SUPERSET_ADMIN_USER}
       SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD}
       SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL}
-      # Puedes dejarlo así porque ya lo tienes armado en el .env
-      SUPERSET_DATABASE_URI: ${SUPERSET_DATABASE_URI}
+      SUPERSET_SQLALCHEMY_DATABASE_URI: ${SUPERSET_SQLALCHEMY_DATABASE_URI}
+      TZ: "${ZONA_HORARIA}"
+      
+      # 👇 CLAVE DEL ÉXITO: Le decimos a Superset dónde leer la config
+      SUPERSET_CONFIG_PATH: /app/superset_config.py
+
     ports:
       - "${SUPERSET_PORT}:8088"
     volumes:
       - ./volumenes/superset:/app/superset_home
+      # 👇 CLAVE DEL ÉXITO: Montamos tu archivo local dentro del contenedor
+      - ./superset_config.py:/app/superset_config.py
     networks:
       bigdata_net:
         ipv4_address: ${SUPERSET_IP}
+  
 
   # ====
   # 🧠 REDIS – Backend de mensajes para Airflow
@@ -304,6 +332,8 @@ services:
     image: redis:${REDIS_VERSION}
     container_name: redis
     restart: unless-stopped
+    environment:
+      TZ: "${ZONA_HORARIA}"
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
@@ -346,6 +376,7 @@ services:
       - AIRFLOW_ADMIN_FIRSTNAME=${AIRFLOW_ADMIN_FIRSTNAME}
       - AIRFLOW_ADMIN_LASTNAME=${AIRFLOW_ADMIN_LASTNAME}
       - AIRFLOW_CONN_SPARK_DEFAULT=spark://spark-master:7077
+      - TZ=${ZONA_HORARIA}
     ports:
       - "${AIRFLOW_PORT}:8090"
     volumes:
@@ -381,6 +412,7 @@ services:
       - AIRFLOW__CELERY__RESULT_BACKEND=${AIRFLOW__CELERY__RESULT_BACKEND}
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DB_CONN}
       - AIRFLOW_CONN_SPARK_DEFAULT=spark://spark-master:7077
+      - TZ=${ZONA_HORARIA}
     volumes:
       - shared_dags_airflow:/opt/airflow/dags
       - shared_scripts_airflow:/opt/airflow/scripts_airflow
@@ -414,6 +446,7 @@ services:
       - AIRFLOW__CELERY__RESULT_BACKEND=${AIRFLOW__CELERY__RESULT_BACKEND}
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DB_CONN}
       - AIRFLOW_CONN_SPARK_DEFAULT=spark://spark-master:7077
+      - TZ=${ZONA_HORARIA}
     volumes:
       - shared_dags_airflow:/opt/airflow/dags
       - shared_scripts_airflow:/opt/airflow/scripts_airflow
@@ -441,6 +474,7 @@ services:
     environment:
       - AIRFLOW__CELERY__BROKER_URL=${AIRFLOW__CELERY__BROKER_URL}
       - AIRFLOW__CELERY__RESULT_BACKEND=${AIRFLOW__CELERY__RESULT_BACKEND}
+      - TZ=${ZONA_HORARIA}
     ports:
       - "5555:5555"
     healthcheck:
@@ -471,6 +505,7 @@ services:
       - N8N_DATA_PATH=${N8N_DATA_PATH}
       - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
       - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL}
+      - TZ=${ZONA_HORARIA}
     ports:
       - "5678:5678"
     volumes:
@@ -503,6 +538,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      TZ: "${ZONA_HORARIA}"
     ports:
       - "2181:2181"
     networks:
@@ -531,6 +567,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: ${KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR}
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: ${KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS}
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: ${KAFKA_AUTO_CREATE_TOPICS_ENABLE}
+      TZ: "${ZONA_HORARIA}"
     networks:
       bigdata_net:
         ipv4_address: ${KAFKA_BROKER_IP}
@@ -550,6 +587,7 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - MLFLOW_S3_ENDPOINT_URL=${MLFLOW_S3_ENDPOINT_URL}
+      - TZ=${ZONA_HORARIA}
     command: >
       mlflow server
         --backend-store-uri mysql+pymysql://${MLFLOW_DB_USER}:${MLFLOW_DB_PASS}@${MLFLOW_DB_HOST}:${MLFLOW_DB_PORT}/${MLFLOW_DB_NAME}
@@ -561,6 +599,214 @@ services:
     networks:
       bigdata_net:
         ipv4_address: ${MLFLOW_IP}
+
+  # ====
+  # 📦 TRADING DASHBOARD
+  # ====
+  trading_dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+      args:
+        TRADING_VERSION: ${TRADING_VERSION}
+    container_name: trading_dashboard
+    restart: unless-stopped
+    environment:
+      - TZ=${ZONA_HORARIA}
+    ports:
+      - "${TRADING_PORT}:8501"
+    volumes:
+      - ./volumenes/tradingdashboard/app:/app
+    depends_on:
+      - mariadb
+      - minio
+      - airflow-webserver
+    networks:
+      bigdata_net:
+        ipv4_address: ${TRADING_IP}
+  # ==========================================
+  # 🦙 OLLAMA – Servidor de IA (Single Instance)
+  # ==========================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT}:11434"
+    volumes:
+      - ./volumenes/ollama:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_KEEP_ALIVE=24h # Mantiene el último modelo en memoria
+      - TZ=${ZONA_HORARIA}
+    networks:
+      bigdata_net:
+        ipv4_address: ${OLLAMA_IP}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ==========================================
+  # 🎩 MAYORDOMO – Descargador de Modelos
+  # ==========================================
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    restart: no
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=${OLLAMA_IP}:11434
+      # Definimos los modelos aquí o en el .env
+      - MODEL_TEXT=${MODEL_TEXT}
+      - MODEL_VISION=${MODEL_VISION}
+    entrypoint: /bin/sh
+    command:
+      - "-c"
+      - |
+        echo "⬇️  Conectando con Ollama..."
+        # 1. Bajamos el modelo de Texto (Rápido)
+        echo "📚 Descargando modelo de TEXTO: ${MODEL_TEXT}..."
+        ollama pull ${MODEL_TEXT}
+        
+        # 2. Bajamos el modelo de Visión (Más pesado)
+        echo "👁️  Descargando modelo de VISIÓN: ${MODEL_VISION}..."
+        ollama pull ${MODEL_VISION}
+        
+        echo "✅ ¡Todos los modelos listos para operar!"
+    networks:
+      - bigdata_net
+  # --- BOT 1: EL VIKINGO (Agresivo) ---
+  bot_vikingo:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: bot_vikingo
+    restart: unless-stopped
+    volumes:
+      # Montamos la carpeta que llenó el publish.sh en /app
+      - ./volumenes/trading_vikingo/app:/app
+    environment:
+      - STATE_FILE_SUFFIX=ATAQUE
+      - BOT_PERSONALIDAD=ATAQUE
+      - BOT_CAMBIA_PERSONALIDAD=FALSE  # Que se quede quieto en su rol
+      - MAX_DAILY_INVESTMENT=500       # Le damos $500 de presupuesto
+      - TRADE_AMOUNT=50
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_ENDPOINT=${ALPACA_ENDPOINT}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=admin123
+      - TZ=${ZONA_HORARIA}
+      - OLLAMA_URL=http://ollama:11434/api/generate
+    depends_on:
+      - minio
+      - ollama
+    # Comando para levantar FastAPI
+    command: >
+      sh -c "
+      echo '💤 Esperando codigo maestro...';
+      while [ ! -f /app/trading_loop.py ]; do
+        sleep 3;
+      done;
+      echo '🚀 Codigo detectado! Iniciando Bot Vikingo...';
+      python -u trading_loop.py
+      "
+    networks:
+      - bigdata_net
+    
+  # --- BOT 1: EL TORTUGA (Defensivo) ---
+  bot_tortuga:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: bot_tortuga
+    restart: unless-stopped
+    volumes:
+      # Montamos la carpeta que llenó el publish.sh en /app
+      - ./volumenes/trading_tortuga/app:/app
+    environment:
+      - STATE_FILE_SUFFIX=DEFENSA
+      - BOT_PERSONALIDAD=DEFENSA
+      - BOT_CAMBIA_PERSONALIDAD=FALSE  # Que se quede quieto en su rol
+      - MAX_DAILY_INVESTMENT=1000       # Le damos $500 de presupuesto
+      - TRADE_AMOUNT=100
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_ENDPOINT=${ALPACA_ENDPOINT}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=admin123
+      - TZ=${ZONA_HORARIA}
+      - OLLAMA_URL=http://ollama:11434/api/generate
+    depends_on:
+      - minio
+      - ollama
+    # Comando para levantar FastAPI
+    command: >
+      sh -c "
+      echo '💤 Esperando codigo maestro...';
+      while [ ! -f /app/trading_loop.py ]; do
+        sleep 3;
+      done;
+      echo '🚀 Codigo detectado! Iniciando Bot Tortuga...';
+      python -u trading_loop.py
+      "
+    networks:
+      - bigdata_net
+
+  # --- BOT 1: EL FRANCOTIRADOR (Selectivo) ---
+  bot_sniper:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: bot_sniper
+    restart: unless-stopped
+    volumes:
+      # Montamos la carpeta que llenó el publish.sh en /app
+      - ./volumenes/trading_sniper/app:/app
+    environment:
+      - STATE_FILE_SUFFIX=SNIPER
+      - BOT_PERSONALIDAD=SNIPER
+      - BOT_CAMBIA_PERSONALIDAD=FALSE  # Que se quede quieto en su rol
+      - MAX_DAILY_INVESTMENT=500       # Le damos $500 de presupuesto
+      - TRADE_AMOUNT=150
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_ENDPOINT=${ALPACA_ENDPOINT}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=admin123
+      - TZ=${ZONA_HORARIA}
+      - OLLAMA_URL=http://ollama:11434/api/generate
+    depends_on:
+      - minio
+      - ollama
+    # Comando para levantar FastAPI
+    command: >
+      sh -c "
+      echo '💤 Esperando codigo maestro...';
+      while [ ! -f /app/trading_loop.py ]; do
+        sleep 3;
+      done;
+      echo '🚀 Codigo detectado! Iniciando Bot Sniper...';
+      python -u trading_loop.py
+      "
+    networks:
+      - bigdata_net
+
 
 # ====
 # 🌐 RED COMPARTIDA ENTRE TODOS LOS SERVICIOS
